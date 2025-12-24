@@ -2274,7 +2274,7 @@ async function loadJsPDF() {
     });
 }
 
-function generateAsciiTree(root, edgesSet) {
+function generateColoredTreeData(root, edgesSet) {
     // Construir lista de adyacencia (Hijo -> [Padres])
     const adj = {};
     edgesSet.forEach(edge => {
@@ -2283,30 +2283,56 @@ function generateAsciiTree(root, edgesSet) {
         adj[child].push(parent);
     });
 
-    let output = '';
+    // Paleta de colores ajustada para legibilidad en PDF (fondo blanco)
+    const palette = ['#d60047', '#0099cc', '#8a00e6', '#d4d400', '#00cc7a', '#d60047', '#cc0088', '#0077cc'];
+    let colorIndex = 0;
+    const getNextColor = () => palette[(colorIndex++) % palette.length];
 
-    function traverse(node, prefix, isTail, isRoot) {
+    const lines = [];
+
+    function traverse(node, prefixSegments, isTail, isRoot, nodeColor) {
         // Conector para el nodo actual
-        // FIX: Usar caracteres ASCII seguros (+, -, |) porque Courier no soporta Unicode extendido
         const connector = isRoot ? '' : (isTail ? '\\-- ' : '+-- ');
-        output += prefix + connector + node + '\n';
+
+        const line = [];
+        // Agregar segmentos de prefijo (las líneas verticales de niveles superiores)
+        prefixSegments.forEach(seg => line.push(seg));
+
+        // Agregar conector actual con su color
+        if (connector) {
+            line.push({ text: connector, color: nodeColor });
+        }
+
+        // Agregar nombre del nodo (Negro para máxima legibilidad)
+        line.push({ text: node, color: '#000000' });
+
+        lines.push(line);
 
         const parents = adj[node] || [];
-        for (let i = 0; i < parents.length; i++) {
+        parents.forEach((parent, i) => {
             const isLastChild = i === parents.length - 1;
 
-            // Calcular prefijo para los hijos de este nodo
-            let childPrefix = prefix;
-            if (!isRoot) {
-                childPrefix += (isTail ? '    ' : '|   ');
+            // Lógica de colores: Si hay ramificación, asignar nuevo color. Si no, heredar.
+            let childColor = nodeColor;
+            if (parents.length > 1) {
+                childColor = getNextColor();
             }
 
-            traverse(parents[i], childPrefix, isLastChild, false);
-        }
+            // Calcular prefijo para los hijos (la línea vertical que baja)
+            const extensionStr = isRoot ? '' : (isTail ? '    ' : '|   ');
+
+            // El segmento de extensión hereda el color del nodo actual
+            const newPrefix = [...prefixSegments];
+            if (!isRoot) {
+                newPrefix.push({ text: extensionStr, color: nodeColor });
+            }
+
+            traverse(parent, newPrefix, isLastChild, false, childColor);
+        });
     }
 
-    traverse(root, '', true, true);
-    return output;
+    traverse(root, [], true, true, '#000000');
+    return lines;
 }
 
 window.downloadTreePDF = async () => {
@@ -2329,27 +2355,35 @@ window.downloadTreePDF = async () => {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
 
-        const treeText = generateAsciiTree(currentMainGenre, currentGraphEdges);
+        const treeLines = generateColoredTreeData(currentMainGenre, currentGraphEdges);
 
         doc.setFont("Courier"); // Fuente monoespaciada esencial para el árbol ASCII
         doc.setFontSize(10);
 
-        const lines = treeText.split('\n');
         let y = 15;
         const pageHeight = doc.internal.pageSize.height;
         const margin = 15;
         const lineHeight = 5;
 
         const title = cleanForPdf(`${t('tree_title')}: ${currentMainGenre}`);
+        doc.setTextColor('#000000');
         doc.text(title, margin, y);
         y += 10;
 
-        lines.forEach(line => {
+        treeLines.forEach(lineSegments => {
             if (y > pageHeight - margin) {
                 doc.addPage();
                 y = margin;
             }
-            doc.text(cleanForPdf(line), margin, y);
+
+            let currentX = margin;
+            lineSegments.forEach(segment => {
+                const text = cleanForPdf(segment.text);
+                doc.setTextColor(segment.color); // Aplicar color del segmento
+                doc.text(text, currentX, y);
+                currentX += doc.getTextWidth(text); // Mover cursor X para el siguiente segmento
+            });
+
             y += lineHeight;
         });
 
