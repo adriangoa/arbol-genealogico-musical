@@ -53,6 +53,11 @@ const translations = {
         search_this_band: "Search this band",
         deep_search_title: "Search for origins on the web",
         bio_modal_title: "Click to see biography and listen",
+        download_pdf: "📄 Download PDF",
+        generating_pdf: "⏳ Generating PDF...",
+        pdf_saved: "✅ PDF saved successfully.",
+        pdf_error: "❌ Error generating PDF.",
+        no_tree_data: "⚠️ No tree data to download.",
     },
     es: {
         app_title: "🎵 SonicRoots: Genealogía Musical",
@@ -93,6 +98,11 @@ const translations = {
         search_this_band: "Buscar esta banda",
         deep_search_title: "Buscar orígenes en la web",
         bio_modal_title: "Click para ver biografía y escuchar",
+        download_pdf: "📄 Descargar PDF",
+        generating_pdf: "⏳ Generando PDF...",
+        pdf_saved: "✅ PDF guardado correctamente.",
+        pdf_error: "❌ Error al generar el PDF.",
+        no_tree_data: "⚠️ No hay datos del árbol para descargar.",
     },
     fr: {
         app_title: "🎵 SonicRoots: Généalogie Musicale",
@@ -133,6 +143,11 @@ const translations = {
         search_this_band: "Rechercher ce groupe",
         deep_search_title: "Rechercher des origines sur le web",
         bio_modal_title: "Cliquez pour voir la biographie et écouter",
+        download_pdf: "📄 Télécharger PDF",
+        generating_pdf: "⏳ Génération du PDF...",
+        pdf_saved: "✅ PDF enregistré avec succès.",
+        pdf_error: "❌ Erreur lors de la génération du PDF.",
+        no_tree_data: "⚠️ Aucune donnée d'arbre à télécharger.",
     },
     de: {
         app_title: "🎵 SonicRoots: Musikalische Genealogie",
@@ -173,6 +188,11 @@ const translations = {
         search_this_band: "Diese Band suchen",
         deep_search_title: "Im Web nach Ursprüngen suchen",
         bio_modal_title: "Klicken für Biografie und Hörprobe",
+        download_pdf: "📄 PDF herunterladen",
+        generating_pdf: "⏳ PDF wird erstellt...",
+        pdf_saved: "✅ PDF erfolgreich gespeichert.",
+        pdf_error: "❌ Fehler beim Erstellen des PDF.",
+        no_tree_data: "⚠️ Keine Baumdaten zum Herunterladen.",
     },
     it: {
         app_title: "🎵 SonicRoots: Genealogia Musicale",
@@ -213,6 +233,11 @@ const translations = {
         search_this_band: "Cerca questa band",
         deep_search_title: "Cerca origini sul web",
         bio_modal_title: "Clicca per vedere biografia e ascoltare",
+        download_pdf: "📄 Scarica PDF",
+        generating_pdf: "⏳ Generazione PDF...",
+        pdf_saved: "✅ PDF salvato con successo.",
+        pdf_error: "❌ Errore durante la generazione del PDF.",
+        no_tree_data: "⚠️ Nessun dato dell'albero da scaricare.",
     },
     pt: {
         app_title: "🎵 SonicRoots: Genealogia Musical",
@@ -253,6 +278,11 @@ const translations = {
         search_this_band: "Buscar esta banda",
         deep_search_title: "Buscar origens na web",
         bio_modal_title: "Clique para ver biografia e ouvir",
+        download_pdf: "📄 Baixar PDF",
+        generating_pdf: "⏳ Gerando PDF...",
+        pdf_saved: "✅ PDF salvo com sucesso.",
+        pdf_error: "❌ Erro ao gerar PDF.",
+        no_tree_data: "⚠️ Sem dados da árvore para baixar.",
     },
     ja: {
         app_title: "🎵 SonicRoots: 音楽の系譜",
@@ -293,6 +323,11 @@ const translations = {
         search_this_band: "このバンドを検索",
         deep_search_title: "ウェブで起源を検索",
         bio_modal_title: "クリックして伝記と試聴を見る",
+        download_pdf: "📄 PDFをダウンロード",
+        generating_pdf: "⏳ PDFを作成中...",
+        pdf_saved: "✅ PDFを保存しました。",
+        pdf_error: "❌ PDFの作成中にエラーが発生しました。",
+        no_tree_data: "⚠️ ダウンロードするツリーデータがありません。",
     }
 };
 
@@ -1039,6 +1074,7 @@ async function displayResults(bandName, bandInfo) {
                 <button class="zoom-btn" onclick="zoomTree(0.2)">${t('zoom_in')}</button>
                 <button class="zoom-btn" onclick="resetTreeZoom()">${t('zoom_reset')}</button>
                 <button class="zoom-btn" onclick="zoomTree(-0.2)">${t('zoom_out')}</button>
+                <button class="zoom-btn" onclick="downloadTreePDF()" style="margin-left: 10px; border-color: #ff0055; color: #ff0055;">${t('download_pdf')}</button>
             </div>
 
             <div class="tree-container">
@@ -2223,6 +2259,107 @@ window.zoomTree = (delta) => {
 window.resetTreeZoom = () => {
     treeZoomLevel = 1;
     applyTreeZoom();
+};
+
+// --- Generación de PDF y Árbol de Texto ---
+
+async function loadJsPDF() {
+    if (window.jspdf) return;
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
+function generateAsciiTree(root, edgesSet) {
+    // Construir lista de adyacencia (Hijo -> [Padres])
+    const adj = {};
+    edgesSet.forEach(edge => {
+        const [child, parent] = edge.split('|');
+        if (!adj[child]) adj[child] = [];
+        adj[child].push(parent);
+    });
+
+    let output = '';
+
+    function traverse(node, prefix, isTail, isRoot) {
+        // Conector para el nodo actual
+        // FIX: Usar caracteres ASCII seguros (+, -, |) porque Courier no soporta Unicode extendido
+        const connector = isRoot ? '' : (isTail ? '\\-- ' : '+-- ');
+        output += prefix + connector + node + '\n';
+
+        const parents = adj[node] || [];
+        for (let i = 0; i < parents.length; i++) {
+            const isLastChild = i === parents.length - 1;
+
+            // Calcular prefijo para los hijos de este nodo
+            let childPrefix = prefix;
+            if (!isRoot) {
+                childPrefix += (isTail ? '    ' : '|   ');
+            }
+
+            traverse(parents[i], childPrefix, isLastChild, false);
+        }
+    }
+
+    traverse(root, '', true, true);
+    return output;
+}
+
+window.downloadTreePDF = async () => {
+    if (!currentMainGenre || currentGraphEdges.size === 0) {
+        showToast(t('no_tree_data'), 'error');
+        return;
+    }
+
+    showToast(t('generating_pdf'), 'info');
+
+    // Función para limpiar caracteres no soportados por fuentes estándar de PDF (ASCII puro)
+    const cleanForPdf = (str) => {
+        return str
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Eliminar acentos (Á -> A)
+            .replace(/[^\x20-\x7E\n]/g, ""); // Eliminar emojis y caracteres fuera del rango ASCII
+    };
+
+    try {
+        await loadJsPDF();
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        const treeText = generateAsciiTree(currentMainGenre, currentGraphEdges);
+
+        doc.setFont("Courier"); // Fuente monoespaciada esencial para el árbol ASCII
+        doc.setFontSize(10);
+
+        const lines = treeText.split('\n');
+        let y = 15;
+        const pageHeight = doc.internal.pageSize.height;
+        const margin = 15;
+        const lineHeight = 5;
+
+        const title = cleanForPdf(`${t('tree_title')}: ${currentMainGenre}`);
+        doc.text(title, margin, y);
+        y += 10;
+
+        lines.forEach(line => {
+            if (y > pageHeight - margin) {
+                doc.addPage();
+                y = margin;
+            }
+            doc.text(cleanForPdf(line), margin, y);
+            y += lineHeight;
+        });
+
+        doc.save(`${currentMainGenre}_Genealogy.pdf`);
+        showToast(t('pdf_saved'), 'success');
+
+    } catch (e) {
+        console.error(e);
+        showToast(t('pdf_error'), 'error');
+    }
 };
 
 function applyTreeZoom() {
