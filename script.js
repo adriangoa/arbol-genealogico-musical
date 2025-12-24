@@ -616,14 +616,20 @@ async function getGenreInfo(genreName) {
                 }
 
                 // Procesar descripción de Last.fm
-                let description = data.tag.wiki?.summary;
+                let description = data.tag.wiki?.content || data.tag.wiki?.summary;
                 if (description) {
                     // Limpiar enlace "Read more on Last.fm"
                     description = description.replace(/\s*<a href="[^"]*last\.fm[^"]*"[^>]*>.*?<\/a>\s*/i, '');
+                    // Limpiar texto legal de Creative Commons
+                    description = description.replace(/User-contributed text is available under the Creative Commons By-SA License; additional terms may apply\.?/i, '');
+                    // Limpiar corchetes de citas (ej. [1], [cita requerida])
+                    description = description.replace(/\s*\[.*?\]/g, '');
                     // Quitar etiquetas HTML
                     description = description.replace(/<[^>]+>/g, '');
                     // Decodificar entidades básicas
                     description = description.replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+                    // Corregir puntos dobles accidentales (.. -> .) preservando puntos suspensivos (...)
+                    description = description.replace(/([^.]|^)\.\.(?![.])/g, '$1.');
                     description = description.trim();
                 }
 
@@ -1954,9 +1960,12 @@ async function getBandBio(bandName) {
                 if (bio) {
                     // Limpiar enlaces y HTML básico
                     bio = bio.replace(/\s*<a href="[^"]*last\.fm[^"]*"[^>]*>.*?<\/a>\s*/i, '');
+                    bio = bio.replace(/\s*\[.*?\]/g, '');
                     bio = bio.replace(/<[^>]+>/g, '');
                     // Decodificar entidades básicas
                     bio = bio.replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+                    // Corregir puntos dobles accidentales (.. -> .) preservando puntos suspensivos (...)
+                    bio = bio.replace(/([^.]|^)\.\.(?![.])/g, '$1.');
                     bio = bio.trim();
                     // Retornar solo si hay texto real y sustancial
                     if (bio && bio.length > 20 && bio !== '.') {
