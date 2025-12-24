@@ -688,6 +688,9 @@ async function searchBand() {
     // UX: Ocultar teclado en móviles al iniciar la búsqueda
     document.getElementById('bandInput').blur();
 
+    // UX: Scroll al inicio para ver los nuevos resultados (útil al hacer clic en bandas similares)
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
     // Detener cualquier audio que se esté reproduciendo en el modal antes de buscar
     const modalAudio = document.querySelector('#genre-modal audio');
     if (modalAudio) {
