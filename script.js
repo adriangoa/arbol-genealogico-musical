@@ -760,10 +760,49 @@ async function displayResults(bandName, bandInfo) {
     }
 
     let html = `
+        <style>
+            .band-image-container { position: relative; }
+            
+            /* Tooltip Personalizado (Caja) */
+            .band-image-container::after {
+                content: attr(data-tooltip);
+                position: absolute;
+                bottom: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                margin-bottom: 10px;
+                background: rgba(0, 0, 0, 0.9);
+                color: #00f3ff;
+                padding: 6px 12px;
+                border-radius: 6px;
+                font-size: 0.85em;
+                white-space: nowrap;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                pointer-events: none;
+                z-index: 100;
+                border: 1px solid rgba(0, 243, 255, 0.3);
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            }
+
+            /* Estados de activación (Hover y Auto-Animación) */
+            .band-image-container:hover::after,
+            .band-image-container.auto-hint::after {
+                opacity: 1;
+                visibility: visible;
+                transform: translateX(-50%) translateY(-5px);
+            }
+
+            .band-image-container.auto-hint .image-overlay {
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
+        </style>
         <div class="info-container">
             <div class="band-info">
                 <div class="band-image-container" 
-                     title="${t('bio_modal_title')}"
+                     data-tooltip="${t('bio_modal_title')}"
                      onclick="showBandModal('${bandInfo.name.replace(/'/g, "\\'")}')">
                     <img src="${bandInfo.image}" alt="${bandInfo.name}" class="band-image" 
                          onerror="this.src='${createCustomPlaceholder(bandInfo.name)}'">
@@ -780,9 +819,9 @@ async function displayResults(bandName, bandInfo) {
                     ${bandInfo.spotifyId
             ? `<iframe style="border-radius:12px; margin-top:15px;" src="https://open.spotify.com/embed/artist/${bandInfo.spotifyId}?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`
             : (bandInfo.spotifyUrl
-                ? `<div>
+                ? `<div style="display: flex; flex-direction: column; align-items: center;">
                      <a href="spotify:search:${encodeURIComponent(bandInfo.name)}" class="spotify-link">${t('search_spotify')} (App)</a>
-                     <a href="${bandInfo.spotifyUrl}" target="_blank" style="font-size: 0.85em; display: block; text-align: center; margin-top: 8px; color: #00f3ff; text-decoration: none; opacity: 0.8; transition: opacity 0.2s;">🌐 Abrir en Web</a>
+                     <a href="${bandInfo.spotifyUrl}" target="_blank" style="font-size: 0.85em; margin-top: 8px; color: #00f3ff; text-decoration: none; opacity: 0.8; transition: opacity 0.2s;">🌐 Abrir en Web</a>
                    </div>`
                 : '')
         }
@@ -821,6 +860,17 @@ async function displayResults(bandName, bandInfo) {
     `;
 
     resultsDiv.innerHTML = html;
+
+    // Animación automática para sugerir que la imagen es clickeable (Auto-Hover)
+    const imgContainer = resultsDiv.querySelector('.band-image-container');
+    if (imgContainer) {
+        setTimeout(() => {
+            imgContainer.classList.add('auto-hint');
+            setTimeout(() => {
+                imgContainer.classList.remove('auto-hint');
+            }, 3000);
+        }, 500);
+    }
 
     // Agregar listener para zoom con rueda del mouse
     const treeContainer = resultsDiv.querySelector('.tree-container');
