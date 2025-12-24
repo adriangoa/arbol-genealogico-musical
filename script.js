@@ -437,6 +437,13 @@ async function searchBand() {
     const bandName = document.getElementById('bandInput').value.trim();
     const resultsDiv = document.getElementById('results');
 
+    // Detener cualquier audio que se esté reproduciendo en el modal antes de buscar
+    const modalAudio = document.querySelector('#genre-modal audio');
+    if (modalAudio) {
+        modalAudio.pause();
+        modalAudio.currentTime = 0;
+    }
+
     // Ocultar sugerencias al iniciar búsqueda
     const suggestionsBox = document.querySelector('.suggestions-box');
     if (suggestionsBox) {
@@ -486,6 +493,17 @@ async function getBandInfo(bandName) {
             // Esto reemplaza la dependencia del mapa hardcoded
             let genre = await getTopGenreFromLastFM(artist.name);
 
+            // Buscar ID de Spotify en las relaciones de MusicBrainz
+            let spotifyId = null;
+            if (artist.relations) {
+                const spotifyRel = artist.relations.find(r => r.type === 'spotify' || (r.url && r.url.resource.includes('spotify.com')));
+                if (spotifyRel) {
+                    // Extraer ID de la URL (ej: https://open.spotify.com/artist/12345...)
+                    const match = spotifyRel.url.resource.match(/artist\/([a-zA-Z0-9]+)/) || spotifyRel.url.resource.match(/spotify:artist:([a-zA-Z0-9]+)/);
+                    if (match) spotifyId = match[1];
+                }
+            }
+
             // Generar un enlace de búsqueda de Spotify, que es más fiable que buscar una relación directa.
             const spotifySearchUrl = `https://open.spotify.com/search/${encodeURIComponent(artist.name)}`;
 
@@ -496,7 +514,8 @@ async function getBandInfo(bandName) {
                 formed: artist['life-span'] ? artist['life-span'].begin?.split('-')[0] : 'Desconocido',
                 type: artist.type || 'Banda',
                 image: image,
-                spotifyUrl: spotifySearchUrl
+                spotifyUrl: spotifySearchUrl,
+                spotifyId: spotifyId
             };
         }
 
@@ -758,7 +777,10 @@ async function displayResults(bandName, bandInfo) {
                     <p><strong>${t('country')}</strong> ${bandInfo.country}</p>
                     <p><strong>${t('formed_in')}</strong> ${bandInfo.formed}</p>
                     <p><strong>${t('type')}</strong> ${bandInfo.type || t('band_type_default')}</p>
-                    ${bandInfo.spotifyUrl ? `<a href="${bandInfo.spotifyUrl}" target="_blank" class="spotify-link">${t('search_spotify')}</a>` : ''}
+                    ${bandInfo.spotifyId
+            ? `<iframe style="border-radius:12px; margin-top:15px;" src="https://open.spotify.com/embed/artist/${bandInfo.spotifyId}?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`
+            : (bandInfo.spotifyUrl ? `<a href="${bandInfo.spotifyUrl}" target="_blank" class="spotify-link">${t('search_spotify')}</a>` : '')
+        }
                 </div>
             </div>
             ${similarHtml}
