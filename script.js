@@ -685,6 +685,9 @@ async function searchBand() {
     const bandName = document.getElementById('bandInput').value.trim();
     const resultsDiv = document.getElementById('results');
 
+    // UX: Ocultar teclado en móviles al iniciar la búsqueda
+    document.getElementById('bandInput').blur();
+
     // Detener cualquier audio que se esté reproduciendo en el modal antes de buscar
     const modalAudio = document.querySelector('#genre-modal audio');
     if (modalAudio) {
