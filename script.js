@@ -1479,6 +1479,66 @@ function highlightEdges(indices, enable) {
     });
 }
 
+// --- Sistema de Notificaciones (Toast) ---
+function showToast(message, type = 'info') {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        `;
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.textContent = message;
+
+    // Colores basados en el tema de la app
+    const borderColor = type === 'error' ? '#ff0055' : (type === 'success' ? '#00ff99' : '#00f3ff');
+
+    toast.style.cssText = `
+        background: rgba(16, 16, 24, 0.95);
+        color: #fff;
+        padding: 12px 24px;
+        border-radius: 4px;
+        border-left: 4px solid ${borderColor};
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        font-family: 'Arial', sans-serif;
+        font-size: 14px;
+        opacity: 0;
+        transform: translateX(50px);
+        transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        min-width: 250px;
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-left-width: 4px;
+        pointer-events: auto;
+    `;
+
+    container.appendChild(toast);
+
+    // Trigger reflow y animar entrada
+    requestAnimationFrame(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(0)';
+    });
+
+    // Remover automáticamente después de 4 segundos
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(50px)';
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
+}
+
 // Función para realizar una búsqueda profunda (Wikidata + Wikipedia)
 async function performDeepAncestorSearch(genreName) {
     console.log(t('deep_search_start', { genreName: genreName }));
@@ -1538,7 +1598,7 @@ async function performDeepAncestorSearch(genreName) {
         await expandGenreNode(genreName);
     } else {
         console.log(t('origins_not_found'));
-        alert(t('search_origins_failed', { genreName: genreName }));
+        showToast(t('search_origins_failed', { genreName: genreName }), 'error');
     }
 
     document.body.style.cursor = originalCursor;
