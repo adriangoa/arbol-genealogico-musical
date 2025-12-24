@@ -15,7 +15,7 @@ let dynamicGenreTree = {};
 // --- SISTEMA DE INTERNACIONALIZACIÓN (i18n) ---
 const translations = {
     en: {
-        app_title: "🎵 Musical Genealogy Tree",
+        app_title: "🎵 SonicRoots: Musical Genealogy",
         search_button: "Search",
         search_placeholder: "Enter a band name...",
         search_prompt: "Please enter a band name.",
@@ -55,7 +55,7 @@ const translations = {
         bio_modal_title: "Click to see biography and listen",
     },
     es: {
-        app_title: "🎵 Árbol Genealógico Musical",
+        app_title: "🎵 SonicRoots: Genealogía Musical",
         search_button: "Buscar",
         search_placeholder: "Escribe el nombre de una banda...",
         search_prompt: "Por favor, escribe el nombre de una banda.",
@@ -93,6 +93,206 @@ const translations = {
         search_this_band: "Buscar esta banda",
         deep_search_title: "Buscar orígenes en la web",
         bio_modal_title: "Click para ver biografía y escuchar",
+    },
+    fr: {
+        app_title: "🎵 SonicRoots: Généalogie Musicale",
+        search_button: "Rechercher",
+        search_placeholder: "Entrez un nom de groupe...",
+        search_prompt: "Veuillez entrer un nom de groupe.",
+        loading_info: "🔍 Recherche d'informations...",
+        band_not_found: 'Informations sur "{bandName}" non trouvées. Essayez un autre nom.',
+        search_error: "Erreur lors de la recherche du groupe. Veuillez réessayer.",
+        main_genre: "Genre Principal :",
+        country: "Pays :",
+        formed_in: "Formé en :",
+        type: "Type :",
+        band_type_default: "Groupe",
+        similar_bands_title: "🔥 Top {genre}",
+        tree_title: "🌳 Arbre Généalogique du Genre",
+        tree_subtitle: "👆 Cliquez sur les genres pour voir les détails et écouter des exemples",
+        zoom_in: "➕ Zoom Avant",
+        zoom_reset: "↺ Réinitialiser",
+        zoom_out: "➖ Zoom Arrière",
+        legend_main: "Genre Principal",
+        legend_origin: "Genres d'Origine",
+        modal_loading_info: "Chargement des informations...",
+        modal_loading_bio: "Chargement de la biographie...",
+        modal_loading_audio: "🔍 Recherche d'un exemple audio...",
+        modal_loading_track: "🔍 Recherche d'un tube...",
+        example: "🎵 Exemple :",
+        by: "par",
+        watch_on_youtube: "📺 Regarder sur YouTube :",
+        watch_related_on_youtube: "📺 Regarder des vidéos liées à :",
+        open_on_youtube: "▶️ Ouvrir sur YouTube",
+        bio_unavailable: "Biographie non disponible.",
+        description_unavailable: "Description non disponible pour {genre}.",
+        search_origins_failed: 'Aucune origine automatique trouvée pour "{genreName}" dans les bases de données.',
+        read_more: "[Lire la suite]",
+        read_less: "[Lire moins]",
+        search_spotify: "🎧 Rechercher sur Spotify",
+        search_this_band: "Rechercher ce groupe",
+        deep_search_title: "Rechercher des origines sur le web",
+        bio_modal_title: "Cliquez pour voir la biographie et écouter",
+    },
+    de: {
+        app_title: "🎵 SonicRoots: Musikalische Genealogie",
+        search_button: "Suchen",
+        search_placeholder: "Bandnamen eingeben...",
+        search_prompt: "Bitte geben Sie einen Bandnamen ein.",
+        loading_info: "🔍 Suche nach Informationen...",
+        band_not_found: 'Informationen über "{bandName}" nicht gefunden. Versuchen Sie einen anderen Namen.',
+        search_error: "Fehler bei der Suche nach der Band. Bitte versuchen Sie es erneut.",
+        main_genre: "Hauptgenre:",
+        country: "Land:",
+        formed_in: "Gegründet in:",
+        type: "Typ:",
+        band_type_default: "Band",
+        similar_bands_title: "🔥 Top {genre}",
+        tree_title: "🌳 Genre-Stammbaum",
+        tree_subtitle: "👆 Klicken Sie auf Genres, um Details zu sehen und Beispiele zu hören",
+        zoom_in: "➕ Vergrößern",
+        zoom_reset: "↺ Zurücksetzen",
+        zoom_out: "➖ Verkleinern",
+        legend_main: "Hauptgenre",
+        legend_origin: "Ursprungsgenres",
+        modal_loading_info: "Lade Informationen...",
+        modal_loading_bio: "Lade Biografie...",
+        modal_loading_audio: "🔍 Suche nach Audiobeispiel...",
+        modal_loading_track: "🔍 Suche nach einem Hit...",
+        example: "🎵 Beispiel:",
+        by: "von",
+        watch_on_youtube: "📺 Auf YouTube ansehen:",
+        watch_related_on_youtube: "📺 Ähnliche Videos ansehen für:",
+        open_on_youtube: "▶️ Auf YouTube öffnen",
+        bio_unavailable: "Biografie nicht verfügbar.",
+        description_unavailable: "Beschreibung für {genre} nicht verfügbar.",
+        search_origins_failed: 'Keine automatischen Ursprünge für "{genreName}" in den Datenbanken gefunden.',
+        read_more: "[Mehr lesen]",
+        read_less: "[Weniger lesen]",
+        search_spotify: "🎧 Auf Spotify suchen",
+        search_this_band: "Diese Band suchen",
+        deep_search_title: "Im Web nach Ursprüngen suchen",
+        bio_modal_title: "Klicken für Biografie und Hörprobe",
+    },
+    it: {
+        app_title: "🎵 SonicRoots: Genealogia Musicale",
+        search_button: "Cerca",
+        search_placeholder: "Inserisci il nome di una band...",
+        search_prompt: "Per favore inserisci il nome di una band.",
+        loading_info: "🔍 Ricerca informazioni...",
+        band_not_found: 'Informazioni su "{bandName}" non trovate. Prova un altro nome.',
+        search_error: "Errore durante la ricerca della band. Riprova.",
+        main_genre: "Genere Principale:",
+        country: "Paese:",
+        formed_in: "Formata nel:",
+        type: "Tipo:",
+        band_type_default: "Band",
+        similar_bands_title: "🔥 Top {genre}",
+        tree_title: "🌳 Albero Genealogico del Genere",
+        tree_subtitle: "👆 Clicca sui generi per vedere i dettagli e ascoltare esempi",
+        zoom_in: "➕ Zoom Avanti",
+        zoom_reset: "↺ Reset",
+        zoom_out: "➖ Zoom Indietro",
+        legend_main: "Genere Principale",
+        legend_origin: "Generi di Origine",
+        modal_loading_info: "Caricamento informazioni...",
+        modal_loading_bio: "Caricamento biografia...",
+        modal_loading_audio: "🔍 Ricerca esempio audio...",
+        modal_loading_track: "🔍 Ricerca di una hit...",
+        example: "🎵 Esempio:",
+        by: "di",
+        watch_on_youtube: "📺 Guarda su YouTube:",
+        watch_related_on_youtube: "📺 Guarda video correlati per:",
+        open_on_youtube: "▶️ Apri su YouTube",
+        bio_unavailable: "Biografia non disponibile.",
+        description_unavailable: "Descrizione non disponibile per {genre}.",
+        search_origins_failed: 'Nessuna origine automatica trovata per "{genreName}" nei database.',
+        read_more: "[Leggi di più]",
+        read_less: "[Leggi di meno]",
+        search_spotify: "🎧 Cerca su Spotify",
+        search_this_band: "Cerca questa band",
+        deep_search_title: "Cerca origini sul web",
+        bio_modal_title: "Clicca per vedere biografia e ascoltare",
+    },
+    pt: {
+        app_title: "🎵 SonicRoots: Genealogia Musical",
+        search_button: "Buscar",
+        search_placeholder: "Digite o nome de uma banda...",
+        search_prompt: "Por favor, digite o nome de uma banda.",
+        loading_info: "🔍 Buscando informações...",
+        band_not_found: 'Informações sobre "{bandName}" não encontradas. Tente outro nome.',
+        search_error: "Erro ao buscar a banda. Tente novamente.",
+        main_genre: "Gênero Principal:",
+        country: "País:",
+        formed_in: "Formada em:",
+        type: "Tipo:",
+        band_type_default: "Banda",
+        similar_bands_title: "🔥 Top {genre}",
+        tree_title: "🌳 Árvore Genealógica do Gênero",
+        tree_subtitle: "👆 Clique nos gêneros para ver detalhes e ouvir exemplos",
+        zoom_in: "➕ Mais Zoom",
+        zoom_reset: "↺ Resetar",
+        zoom_out: "➖ Menos Zoom",
+        legend_main: "Gênero Principal",
+        legend_origin: "Gêneros de Origem",
+        modal_loading_info: "Carregando informações...",
+        modal_loading_bio: "Carregando biografia...",
+        modal_loading_audio: "🔍 Buscando exemplo de áudio...",
+        modal_loading_track: "🔍 Buscando um sucesso...",
+        example: "🎵 Exemplo:",
+        by: "por",
+        watch_on_youtube: "📺 Assistir no YouTube:",
+        watch_related_on_youtube: "📺 Assistir vídeos relacionados a:",
+        open_on_youtube: "▶️ Abrir no YouTube",
+        bio_unavailable: "Biografia indisponível.",
+        description_unavailable: "Descrição indisponível para {genre}.",
+        search_origins_failed: 'Nenhuma origem automática encontrada para "{genreName}" nos bancos de dados.',
+        read_more: "[Ler mais]",
+        read_less: "[Ler menos]",
+        search_spotify: "🎧 Buscar no Spotify",
+        search_this_band: "Buscar esta banda",
+        deep_search_title: "Buscar origens na web",
+        bio_modal_title: "Clique para ver biografia e ouvir",
+    },
+    ja: {
+        app_title: "🎵 SonicRoots: 音楽の系譜",
+        search_button: "検索",
+        search_placeholder: "バンド名を入力...",
+        search_prompt: "バンド名を入力してください。",
+        loading_info: "🔍 情報を検索中...",
+        band_not_found: '"{bandName}" に関する情報は見つかりませんでした。別の名前を試してください。',
+        search_error: "バンドの検索中にエラーが発生しました。もう一度お試しください。",
+        main_genre: "メインジャンル:",
+        country: "国:",
+        formed_in: "結成:",
+        type: "タイプ:",
+        band_type_default: "バンド",
+        similar_bands_title: "🔥 トップ {genre}",
+        tree_title: "🌳 ジャンル系譜図",
+        tree_subtitle: "👆 ジャンルをクリックして詳細とサンプルを確認",
+        zoom_in: "➕ 拡大",
+        zoom_reset: "↺ リセット",
+        zoom_out: "➖ 縮小",
+        legend_main: "メインジャンル",
+        legend_origin: "起源ジャンル",
+        modal_loading_info: "情報を読み込んでいます...",
+        modal_loading_bio: "伝記を読み込んでいます...",
+        modal_loading_audio: "🔍 音声サンプルを検索中...",
+        modal_loading_track: "🔍 ヒット曲を検索中...",
+        example: "🎵 例:",
+        by: "by",
+        watch_on_youtube: "📺 YouTubeで見る:",
+        watch_related_on_youtube: "📺 関連動画を見る:",
+        open_on_youtube: "▶️ YouTubeで開く",
+        bio_unavailable: "伝記は利用できません。",
+        description_unavailable: "{genre} の説明は利用できません。",
+        search_origins_failed: 'データベースで "{genreName}" の自動起源が見つかりませんでした。',
+        read_more: "[続きを読む]",
+        read_less: "[閉じる]",
+        search_spotify: "🎧 Spotifyで検索",
+        search_this_band: "このバンドを検索",
+        deep_search_title: "ウェブで起源を検索",
+        bio_modal_title: "クリックして伝記と試聴を見る",
     }
 };
 
@@ -127,6 +327,7 @@ function updateStaticUI() {
     document.querySelector('h1').innerHTML = t('app_title');
     document.getElementById('bandInput').placeholder = t('search_placeholder');
     document.querySelector('.search-section button').textContent = t('search_button');
+    document.title = t('app_title').replace('🎵 ', ''); // Actualizar título del navegador sin el emoji
 }
 
 // --- BASE DE DATOS LOCAL (Simulación de Persistencia) ---
@@ -436,6 +637,19 @@ async function searchBand() {
     const bandName = document.getElementById('bandInput').value.trim();
     const resultsDiv = document.getElementById('results');
 
+    // Detener cualquier audio que se esté reproduciendo en el modal antes de buscar
+    const modalAudio = document.querySelector('#genre-modal audio');
+    if (modalAudio) {
+        modalAudio.pause();
+        modalAudio.currentTime = 0;
+    }
+
+    // Ocultar sugerencias al iniciar búsqueda
+    const suggestionsBox = document.querySelector('.suggestions-box');
+    if (suggestionsBox) {
+        suggestionsBox.style.display = 'none';
+    }
+
     if (!bandName) {
         resultsDiv.innerHTML = `<p>${t('search_prompt')}</p>`;
         return;
@@ -479,6 +693,17 @@ async function getBandInfo(bandName) {
             // Esto reemplaza la dependencia del mapa hardcoded
             let genre = await getTopGenreFromLastFM(artist.name);
 
+            // Buscar ID de Spotify en las relaciones de MusicBrainz
+            let spotifyId = null;
+            if (artist.relations) {
+                const spotifyRel = artist.relations.find(r => r.type === 'spotify' || (r.url && r.url.resource.includes('spotify.com')));
+                if (spotifyRel) {
+                    // Extraer ID de la URL (ej: https://open.spotify.com/artist/12345...)
+                    const match = spotifyRel.url.resource.match(/artist\/([a-zA-Z0-9]+)/) || spotifyRel.url.resource.match(/spotify:artist:([a-zA-Z0-9]+)/);
+                    if (match) spotifyId = match[1];
+                }
+            }
+
             // Generar un enlace de búsqueda de Spotify, que es más fiable que buscar una relación directa.
             const spotifySearchUrl = `https://open.spotify.com/search/${encodeURIComponent(artist.name)}`;
 
@@ -489,7 +714,8 @@ async function getBandInfo(bandName) {
                 formed: artist['life-span'] ? artist['life-span'].begin?.split('-')[0] : 'Desconocido',
                 type: artist.type || 'Banda',
                 image: image,
-                spotifyUrl: spotifySearchUrl
+                spotifyUrl: spotifySearchUrl,
+                spotifyId: spotifyId
             };
         }
 
@@ -734,10 +960,49 @@ async function displayResults(bandName, bandInfo) {
     }
 
     let html = `
+        <style>
+            .band-image-container { position: relative; }
+            
+            /* Tooltip Personalizado (Caja) */
+            .band-image-container::after {
+                content: attr(data-tooltip);
+                position: absolute;
+                bottom: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                margin-bottom: 10px;
+                background: rgba(0, 0, 0, 0.9);
+                color: #00f3ff;
+                padding: 6px 12px;
+                border-radius: 6px;
+                font-size: 0.85em;
+                white-space: nowrap;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                pointer-events: none;
+                z-index: 100;
+                border: 1px solid rgba(0, 243, 255, 0.3);
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            }
+
+            /* Estados de activación (Hover y Auto-Animación) */
+            .band-image-container:hover::after,
+            .band-image-container.auto-hint::after {
+                opacity: 1;
+                visibility: visible;
+                transform: translateX(-50%) translateY(-5px);
+            }
+
+            .band-image-container.auto-hint .image-overlay {
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
+        </style>
         <div class="info-container">
             <div class="band-info">
                 <div class="band-image-container" 
-                     title="${t('bio_modal_title')}"
+                     data-tooltip="${t('bio_modal_title')}"
                      onclick="showBandModal('${bandInfo.name.replace(/'/g, "\\'")}')">
                     <img src="${bandInfo.image}" alt="${bandInfo.name}" class="band-image" 
                          onerror="this.src='${createCustomPlaceholder(bandInfo.name)}'">
@@ -751,7 +1016,15 @@ async function displayResults(bandName, bandInfo) {
                     <p><strong>${t('country')}</strong> ${bandInfo.country}</p>
                     <p><strong>${t('formed_in')}</strong> ${bandInfo.formed}</p>
                     <p><strong>${t('type')}</strong> ${bandInfo.type || t('band_type_default')}</p>
-                    ${bandInfo.spotifyUrl ? `<a href="${bandInfo.spotifyUrl}" target="_blank" class="spotify-link">${t('search_spotify')}</a>` : ''}
+                    ${bandInfo.spotifyId
+            ? `<iframe style="border-radius:12px; margin-top:15px;" src="https://open.spotify.com/embed/artist/${bandInfo.spotifyId}?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`
+            : (bandInfo.spotifyUrl
+                ? `<div style="display: flex; flex-direction: column; align-items: center;">
+                     <a href="spotify:search:${encodeURIComponent(bandInfo.name)}" class="spotify-link">${t('search_spotify')} (App)</a>
+                     <a href="${bandInfo.spotifyUrl}" target="_blank" style="font-size: 0.85em; margin-top: 8px; color: #00f3ff; text-decoration: none; opacity: 0.8; transition: opacity 0.2s;">🌐 Abrir en Web</a>
+                   </div>`
+                : '')
+        }
                 </div>
             </div>
             ${similarHtml}
@@ -787,6 +1060,17 @@ async function displayResults(bandName, bandInfo) {
     `;
 
     resultsDiv.innerHTML = html;
+
+    // Animación automática para sugerir que la imagen es clickeable (Auto-Hover)
+    const imgContainer = resultsDiv.querySelector('.band-image-container');
+    if (imgContainer) {
+        setTimeout(() => {
+            imgContainer.classList.add('auto-hint');
+            setTimeout(() => {
+                imgContainer.classList.remove('auto-hint');
+            }, 3000);
+        }, 500);
+    }
 
     // Agregar listener para zoom con rueda del mouse
     const treeContainer = resultsDiv.querySelector('.tree-container');
@@ -1152,19 +1436,37 @@ async function performDeepAncestorSearch(genreName) {
     const originalCursor = document.body.style.cursor;
     document.body.style.cursor = 'wait';
 
-    // 1. Intentar Wikidata (ya existente)
-    let origins = await fetchDynamicOrigins(genreName);
-
-    // 2. Si Wikidata falla, intentar Wikipedia (Scraping de Infobox)
-    if (!origins || origins.length === 0) {
-        console.log(t('wiki_infobox_search'));
-        origins = await fetchWikipediaOrigins(genreName);
+    // Generar variantes de búsqueda (Original, Sin guiones, Todo junto)
+    const searchVariants = [genreName];
+    if (genreName.includes('-')) {
+        searchVariants.push(genreName.replace(/-/g, ' ')); // "Lo-fi" -> "Lo fi"
+        searchVariants.push(genreName.replace(/-/g, ''));  // "Lo-fi" -> "Lofi"
     }
 
-    // 3. Si Wikipedia falla, intentar con tags similares de Last.fm
+    let origins = [];
+
+    // Iterar sobre variantes hasta encontrar resultados
+    for (const variant of searchVariants) {
+        console.log(`🔍 Probando variante: "${variant}"`);
+
+        // 1. Intentar Wikidata
+        origins = await fetchDynamicOrigins(variant);
+        if (origins && origins.length > 0) break;
+
+        // 2. Intentar Wikipedia
+        console.log(t('wiki_infobox_search'));
+        origins = await fetchWikipediaOrigins(variant);
+        if (origins && origins.length > 0) break;
+    }
+
+    // 3. Si todo falla, intentar con tags similares de Last.fm (usando el nombre original)
     if (!origins || origins.length === 0) {
-        console.log(t('lastfm_similar_search'));
-        origins = await fetchLastFmSimilar(genreName);
+        // Intentar Last.fm con todas las variantes también
+        for (const variant of searchVariants) {
+            console.log(t('lastfm_similar_search') + ` (${variant})`);
+            origins = await fetchLastFmSimilar(variant);
+            if (origins && origins.length > 0) break;
+        }
     }
 
     if (origins && origins.length > 0) {
@@ -1438,24 +1740,42 @@ async function showBandModal(bandName) {
 }
 
 async function getBandBio(bandName) {
-    try {
-        const response = await fetch(
-            `${API_CONFIG.lastfm.baseUrl}?method=artist.getinfo&artist=${encodeURIComponent(bandName)}&api_key=${API_CONFIG.lastfm.key}&format=json&lang=${currentLanguage}`
-        );
-        if (response.ok) {
-            const data = await response.json();
-            let bio = data.artist?.bio?.summary;
-            if (bio) {
-                // Limpiar enlaces y HTML básico
-                bio = bio.replace(/\s*<a href="[^"]*last\.fm[^"]*"[^>]*>.*?<\/a>\s*/i, '');
-                bio = bio.replace(/<[^>]+>/g, '');
-                // Decodificar entidades básicas
-                bio = bio.replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-                return bio.trim();
+    // Helper para buscar bio en un idioma específico
+    const fetchBio = async (lang) => {
+        try {
+            const response = await fetch(
+                `${API_CONFIG.lastfm.baseUrl}?method=artist.getinfo&artist=${encodeURIComponent(bandName)}&api_key=${API_CONFIG.lastfm.key}&format=json&lang=${lang}`
+            );
+            if (response.ok) {
+                const data = await response.json();
+                let bio = data.artist?.bio?.summary;
+                if (bio) {
+                    // Limpiar enlaces y HTML básico
+                    bio = bio.replace(/\s*<a href="[^"]*last\.fm[^"]*"[^>]*>.*?<\/a>\s*/i, '');
+                    bio = bio.replace(/<[^>]+>/g, '');
+                    // Decodificar entidades básicas
+                    bio = bio.replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+                    bio = bio.trim();
+                    // Retornar solo si hay texto real y sustancial
+                    if (bio && bio.length > 20 && bio !== '.') {
+                        return bio;
+                    }
+                }
             }
-        }
-    } catch (e) { console.error(e); }
-    return t('bio_unavailable');
+        } catch (e) { console.error(e); }
+        return null;
+    };
+
+    // 1. Intentar en idioma actual
+    let bio = await fetchBio(currentLanguage);
+
+    // 2. Si falla y no estamos en inglés, intentar en inglés (Fallback)
+    if (!bio && currentLanguage !== 'en') {
+        console.log(`Bio no encontrada en ${currentLanguage}, intentando en inglés...`);
+        bio = await fetchBio('en');
+    }
+
+    return bio || t('bio_unavailable');
 }
 
 async function getBandTrackPreview(bandName) {
@@ -1552,6 +1872,7 @@ async function fetchDynamicOrigins(genreName) {
 
         if (response.ok) {
             const data = await response.json();
+
             console.log(`WikiData: Orígenes encontrados para ${genreName}:`, data.results.bindings.length);
             return data.results.bindings
                 .map(b => normalizeGenreName(b.originLabel.value))
