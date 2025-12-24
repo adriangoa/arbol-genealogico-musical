@@ -1131,6 +1131,57 @@ async function displayResults(bandName, bandInfo) {
             treeContainer.scrollLeft = scrollLeft - walkX;
             treeContainer.scrollTop = scrollTop - walkY;
         });
+
+        // Soporte para Pinch Zoom (Móvil)
+        let initialPinchDistance = null;
+        let startPinchZoomLevel = 1;
+
+        treeContainer.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 2) {
+                e.preventDefault(); // Prevenir zoom nativo del navegador
+                const dx = e.touches[0].clientX - e.touches[1].clientX;
+                const dy = e.touches[0].clientY - e.touches[1].clientY;
+                initialPinchDistance = Math.hypot(dx, dy);
+                startPinchZoomLevel = treeZoomLevel;
+            }
+        }, { passive: false });
+
+        treeContainer.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2 && initialPinchDistance) {
+                e.preventDefault();
+                const dx = e.touches[0].clientX - e.touches[1].clientX;
+                const dy = e.touches[0].clientY - e.touches[1].clientY;
+                const currentDistance = Math.hypot(dx, dy);
+
+                if (currentDistance > 0) {
+                    const oldZoom = treeZoomLevel;
+                    const scale = currentDistance / initialPinchDistance;
+                    const newZoom = Math.max(0.2, Math.min(5, startPinchZoomLevel * scale));
+
+                    if (newZoom !== oldZoom) {
+                        treeZoomLevel = newZoom;
+                        applyTreeZoom();
+
+                        // Ajustar scroll hacia el centro del pinch
+                        const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+                        const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+                        const rect = treeContainer.getBoundingClientRect();
+                        const offsetX = centerX - rect.left;
+                        const offsetY = centerY - rect.top;
+
+                        const scaleRatio = newZoom / oldZoom;
+                        treeContainer.scrollLeft = (treeContainer.scrollLeft + offsetX) * scaleRatio - offsetX;
+                        treeContainer.scrollTop = (treeContainer.scrollTop + offsetY) * scaleRatio - offsetY;
+                    }
+                }
+            }
+        }, { passive: false });
+
+        treeContainer.addEventListener('touchend', (e) => {
+            if (e.touches.length < 2) {
+                initialPinchDistance = null;
+            }
+        });
     }
 
     await buildVisualTree(genre);
