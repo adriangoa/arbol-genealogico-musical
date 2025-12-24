@@ -11,6 +11,7 @@ const API_CONFIG = {
 
 // Sistema dinámico de géneros usando APIs
 let dynamicGenreTree = {};
+let searchDebounceTimer = null;
 
 // --- SISTEMA DE INTERNACIONALIZACIÓN (i18n) ---
 const translations = {
@@ -684,6 +685,9 @@ async function getGenreInfo(genreName) {
 async function searchBand() {
     const bandName = document.getElementById('bandInput').value.trim();
     const resultsDiv = document.getElementById('results');
+
+    // UX: Cancelar sugerencias pendientes si el usuario ya disparó la búsqueda
+    if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
 
     // UX: Ocultar teclado en móviles al iniciar la búsqueda
     document.getElementById('bandInput').blur();
@@ -2531,7 +2535,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const input = document.getElementById('bandInput');
     const searchSection = document.querySelector('.search-section');
-    let debounceTimer;
 
     // Crear contenedor de sugerencias si no existe
     let suggestionsBox = document.createElement('div');
@@ -2541,7 +2544,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Escuchar escritura
     input.addEventListener('input', function () {
         const query = this.value.trim();
-        clearTimeout(debounceTimer);
+        if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
 
         if (query.length < 2) {
             suggestionsBox.style.display = 'none';
@@ -2549,7 +2552,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Esperar 300ms antes de buscar (Debounce)
-        debounceTimer = setTimeout(() => fetchSuggestions(query), 300);
+        searchDebounceTimer = setTimeout(() => fetchSuggestions(query), 300);
     });
 
     // Cerrar al hacer clic fuera
