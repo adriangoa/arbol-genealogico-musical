@@ -1746,6 +1746,17 @@ function initModalSystem() {
 
     // Inyectar HTML del modal
     const modalHtml = `
+        <style>
+            /* FIX: Mobile Modal Scroll & Sizing */
+            #genre-modal { overflow-x: hidden; }
+            .modal-content { 
+                box-sizing: border-box; 
+                max-width: 90vw;
+            }
+            @media (max-width: 600px) {
+                .modal-content { width: 94%; margin: 15% auto; }
+            }
+        </style>
         <div id="genre-modal" class="modal">
             <div class="modal-content">
                 <span class="close-button">&times;</span>
