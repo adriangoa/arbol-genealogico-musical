@@ -1012,6 +1012,21 @@ async function displayResults(bandName, bandInfo) {
         <style>
             .band-image-container { position: relative; }
             
+            /* FIX: Responsive Zoom Controls */
+            .zoom-controls {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 8px;
+            }
+            @media (max-width: 600px) {
+                .zoom-btn {
+                    flex: 1 1 40%;
+                    margin: 2px !important;
+                    font-size: 0.85em;
+                }
+            }
+
             /* Tooltip Personalizado (Caja) */
             .band-image-container::after {
                 content: attr(data-tooltip);
@@ -1088,7 +1103,7 @@ async function displayResults(bandName, bandInfo) {
                 <button class="zoom-btn" onclick="zoomTree(0.2)">${t('zoom_in')}</button>
                 <button class="zoom-btn" onclick="resetTreeZoom()">${t('zoom_reset')}</button>
                 <button class="zoom-btn" onclick="zoomTree(-0.2)">${t('zoom_out')}</button>
-                <button class="zoom-btn" onclick="downloadTreePDF()" style="margin-left: 10px; border-color: #ff0055; color: #ff0055;">${t('download_pdf')}</button>
+                <button class="zoom-btn" onclick="downloadTreePDF()" style="border-color: #ff0055; color: #ff0055;">${t('download_pdf')}</button>
             </div>
 
             <div class="tree-container">
