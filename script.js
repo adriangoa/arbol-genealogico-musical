@@ -1238,6 +1238,7 @@ let currentGraphNodes = new Set();
 let currentGraphEdges = new Set();
 let currentMainGenre = null;
 let treeZoomLevel = 1;
+let lastInteractedGenre = null;
 
 // Cargar Mermaid.js dinámicamente
 async function loadMermaid() {
@@ -1323,6 +1324,7 @@ async function renderMermaidGraph() {
     // Estilos personalizados
     graphDefinition += 'classDef default fill:#090910,stroke:#00f3ff,stroke-width:2px,rx:5,ry:5,color:#fff,font-family:Arial;\n';
     graphDefinition += 'classDef main fill:#ff0055,stroke:#fff,stroke-width:3px,color:#fff,font-weight:bold;\n';
+    graphDefinition += 'classDef selected fill:#090910,stroke:#ffff00,stroke-width:4px,color:#fff,font-weight:bold;\n';
 
     // Identificar nodos que ya se han expandido (son origen de una flecha hacia abajo)
     const expandedNodes = new Set();
@@ -1344,7 +1346,7 @@ async function renderMermaidGraph() {
         const isLeaf = !expandedNodes.has(genre);
         const searchIcon = isLeaf ? ` <span class='node-search' title='${t('deep_search_title')}'>🔍</span>` : "";
 
-        const nodeClass = genre === currentMainGenre ? 'main' : 'default';
+        const nodeClass = genre === lastInteractedGenre ? 'selected' : (genre === currentMainGenre ? 'main' : 'default');
         graphDefinition += `${genreId}["${genre}${searchIcon}"]:::${nodeClass}\n`;
     });
 
@@ -1492,6 +1494,7 @@ function setupMermaidListeners(container) {
             const foundId = Object.keys(window.mermaidIdMap).find(key => nodeElement.id.includes(key));
             if (foundId) {
                 const genreName = window.mermaidIdMap[foundId];
+                lastInteractedGenre = genreName;
                 console.log('🖱️ Click:', genreName);
 
                 // 1. Mostrar Modal
@@ -1652,10 +1655,9 @@ async function expandGenreNode(genreName) {
     console.log(`🌳 Expandiendo nodo: ${genreName}`);
     const normalizedGenreName = normalizeGenreName(genreName);
     const genreInfo = await getGenreInfo(genreName);
+    let newNodesAdded = false;
 
     if (genreInfo && genreInfo.origins && genreInfo.origins.length > 0) {
-        let newNodesAdded = false;
-
         for (const origin of genreInfo.origins) {
             // Si el origen no está en el gráfico, lo agregamos
             const normalizedOrigin = normalizeGenreName(origin);
@@ -1672,13 +1674,15 @@ async function expandGenreNode(genreName) {
                 }
             }
         }
+    }
 
-        if (newNodesAdded) {
-            console.log(t('tree_updated'));
-            await renderMermaidGraph();
-        } else {
-            console.log(t('node_expanded'));
-        }
+    if (newNodesAdded) {
+        console.log(t('tree_updated'));
+        await renderMermaidGraph();
+    } else {
+        console.log(t('node_expanded'));
+        // Forzar renderizado para actualizar el borde amarillo de selección
+        await renderMermaidGraph();
     }
 }
 
