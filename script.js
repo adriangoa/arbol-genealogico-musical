@@ -1436,37 +1436,42 @@ async function performDeepAncestorSearch(genreName) {
     const originalCursor = document.body.style.cursor;
     document.body.style.cursor = 'wait';
 
-    // Generar variantes de búsqueda (Original, Sin guiones, Todo junto)
-    const searchVariants = [genreName];
-    if (genreName.includes('-')) {
-        searchVariants.push(genreName.replace(/-/g, ' ')); // "Lo-fi" -> "Lo fi"
-        searchVariants.push(genreName.replace(/-/g, ''));  // "Lo-fi" -> "Lofi"
-    }
+    // FIX: Verificar primero la base de datos local para mantener consistencia con el click del nodo
+    let origins = genreDB.get(genreName);
 
-    let origins = [];
-
-    // Iterar sobre variantes hasta encontrar resultados
-    for (const variant of searchVariants) {
-        console.log(`🔍 Probando variante: "${variant}"`);
-
-        // 1. Intentar Wikidata
-        origins = await fetchDynamicOrigins(variant);
-        if (origins && origins.length > 0) break;
-
-        // 2. Intentar Wikipedia
-        console.log(t('wiki_infobox_search'));
-        origins = await fetchWikipediaOrigins(variant);
-        if (origins && origins.length > 0) break;
-    }
-
-    // 3. Si todo falla, intentar con tags similares de Last.fm (usando el nombre original)
     if (!origins || origins.length === 0) {
-        // Intentar Last.fm con todas las variantes también
+        // Generar variantes de búsqueda (Original, Sin guiones, Todo junto)
+        const searchVariants = [genreName];
+        if (genreName.includes('-')) {
+            searchVariants.push(genreName.replace(/-/g, ' ')); // "Lo-fi" -> "Lo fi"
+            searchVariants.push(genreName.replace(/-/g, ''));  // "Lo-fi" -> "Lofi"
+        }
+
+        // Iterar sobre variantes hasta encontrar resultados
         for (const variant of searchVariants) {
-            console.log(t('lastfm_similar_search') + ` (${variant})`);
-            origins = await fetchLastFmSimilar(variant);
+            console.log(`🔍 Probando variante: "${variant}"`);
+
+            // 1. Intentar Wikidata
+            origins = await fetchDynamicOrigins(variant);
+            if (origins && origins.length > 0) break;
+
+            // 2. Intentar Wikipedia
+            console.log(t('wiki_infobox_search'));
+            origins = await fetchWikipediaOrigins(variant);
             if (origins && origins.length > 0) break;
         }
+
+        // 3. Si todo falla, intentar con tags similares de Last.fm (usando el nombre original)
+        if (!origins || origins.length === 0) {
+            // Intentar Last.fm con todas las variantes también
+            for (const variant of searchVariants) {
+                console.log(t('lastfm_similar_search') + ` (${variant})`);
+                origins = await fetchLastFmSimilar(variant);
+                if (origins && origins.length > 0) break;
+            }
+        }
+    } else {
+        console.log(`✅ Orígenes encontrados en DB local para ${genreName}`);
     }
 
     if (origins && origins.length > 0) {
