@@ -15,7 +15,7 @@ let dynamicGenreTree = {};
 // --- SISTEMA DE INTERNACIONALIZACIÓN (i18n) ---
 const translations = {
     en: {
-        app_title: "🎵 Musical Genealogy Tree",
+        app_title: "🎵 SonicRoots: Musical Genealogy",
         search_button: "Search",
         search_placeholder: "Enter a band name...",
         search_prompt: "Please enter a band name.",
@@ -55,7 +55,7 @@ const translations = {
         bio_modal_title: "Click to see biography and listen",
     },
     es: {
-        app_title: "🎵 Árbol Genealógico Musical",
+        app_title: "🎵 SonicRoots: Genealogía Musical",
         search_button: "Buscar",
         search_placeholder: "Escribe el nombre de una banda...",
         search_prompt: "Por favor, escribe el nombre de una banda.",
@@ -127,6 +127,7 @@ function updateStaticUI() {
     document.querySelector('h1').innerHTML = t('app_title');
     document.getElementById('bandInput').placeholder = t('search_placeholder');
     document.querySelector('.search-section button').textContent = t('search_button');
+    document.title = t('app_title').replace('🎵 ', ''); // Actualizar título del navegador sin el emoji
 }
 
 // --- BASE DE DATOS LOCAL (Simulación de Persistencia) ---
@@ -435,6 +436,12 @@ async function getGenreInfo(genreName) {
 async function searchBand() {
     const bandName = document.getElementById('bandInput').value.trim();
     const resultsDiv = document.getElementById('results');
+
+    // Ocultar sugerencias al iniciar búsqueda
+    const suggestionsBox = document.querySelector('.suggestions-box');
+    if (suggestionsBox) {
+        suggestionsBox.style.display = 'none';
+    }
 
     if (!bandName) {
         resultsDiv.innerHTML = `<p>${t('search_prompt')}</p>`;
@@ -1152,19 +1159,37 @@ async function performDeepAncestorSearch(genreName) {
     const originalCursor = document.body.style.cursor;
     document.body.style.cursor = 'wait';
 
-    // 1. Intentar Wikidata (ya existente)
-    let origins = await fetchDynamicOrigins(genreName);
-
-    // 2. Si Wikidata falla, intentar Wikipedia (Scraping de Infobox)
-    if (!origins || origins.length === 0) {
-        console.log(t('wiki_infobox_search'));
-        origins = await fetchWikipediaOrigins(genreName);
+    // Generar variantes de búsqueda (Original, Sin guiones, Todo junto)
+    const searchVariants = [genreName];
+    if (genreName.includes('-')) {
+        searchVariants.push(genreName.replace(/-/g, ' ')); // "Lo-fi" -> "Lo fi"
+        searchVariants.push(genreName.replace(/-/g, ''));  // "Lo-fi" -> "Lofi"
     }
 
-    // 3. Si Wikipedia falla, intentar con tags similares de Last.fm
+    let origins = [];
+
+    // Iterar sobre variantes hasta encontrar resultados
+    for (const variant of searchVariants) {
+        console.log(`🔍 Probando variante: "${variant}"`);
+
+        // 1. Intentar Wikidata
+        origins = await fetchDynamicOrigins(variant);
+        if (origins && origins.length > 0) break;
+
+        // 2. Intentar Wikipedia
+        console.log(t('wiki_infobox_search'));
+        origins = await fetchWikipediaOrigins(variant);
+        if (origins && origins.length > 0) break;
+    }
+
+    // 3. Si todo falla, intentar con tags similares de Last.fm (usando el nombre original)
     if (!origins || origins.length === 0) {
-        console.log(t('lastfm_similar_search'));
-        origins = await fetchLastFmSimilar(genreName);
+        // Intentar Last.fm con todas las variantes también
+        for (const variant of searchVariants) {
+            console.log(t('lastfm_similar_search') + ` (${variant})`);
+            origins = await fetchLastFmSimilar(variant);
+            if (origins && origins.length > 0) break;
+        }
     }
 
     if (origins && origins.length > 0) {
@@ -1438,24 +1463,42 @@ async function showBandModal(bandName) {
 }
 
 async function getBandBio(bandName) {
-    try {
-        const response = await fetch(
-            `${API_CONFIG.lastfm.baseUrl}?method=artist.getinfo&artist=${encodeURIComponent(bandName)}&api_key=${API_CONFIG.lastfm.key}&format=json&lang=${currentLanguage}`
-        );
-        if (response.ok) {
-            const data = await response.json();
-            let bio = data.artist?.bio?.summary;
-            if (bio) {
-                // Limpiar enlaces y HTML básico
-                bio = bio.replace(/\s*<a href="[^"]*last\.fm[^"]*"[^>]*>.*?<\/a>\s*/i, '');
-                bio = bio.replace(/<[^>]+>/g, '');
-                // Decodificar entidades básicas
-                bio = bio.replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-                return bio.trim();
+    // Helper para buscar bio en un idioma específico
+    const fetchBio = async (lang) => {
+        try {
+            const response = await fetch(
+                `${API_CONFIG.lastfm.baseUrl}?method=artist.getinfo&artist=${encodeURIComponent(bandName)}&api_key=${API_CONFIG.lastfm.key}&format=json&lang=${lang}`
+            );
+            if (response.ok) {
+                const data = await response.json();
+                let bio = data.artist?.bio?.summary;
+                if (bio) {
+                    // Limpiar enlaces y HTML básico
+                    bio = bio.replace(/\s*<a href="[^"]*last\.fm[^"]*"[^>]*>.*?<\/a>\s*/i, '');
+                    bio = bio.replace(/<[^>]+>/g, '');
+                    // Decodificar entidades básicas
+                    bio = bio.replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+                    bio = bio.trim();
+                    // Retornar solo si hay texto real y sustancial
+                    if (bio && bio.length > 20 && bio !== '.') {
+                        return bio;
+                    }
+                }
             }
-        }
-    } catch (e) { console.error(e); }
-    return t('bio_unavailable');
+        } catch (e) { console.error(e); }
+        return null;
+    };
+
+    // 1. Intentar en idioma actual
+    let bio = await fetchBio(currentLanguage);
+
+    // 2. Si falla y no estamos en inglés, intentar en inglés (Fallback)
+    if (!bio && currentLanguage !== 'en') {
+        console.log(`Bio no encontrada en ${currentLanguage}, intentando en inglés...`);
+        bio = await fetchBio('en');
+    }
+
+    return bio || t('bio_unavailable');
 }
 
 async function getBandTrackPreview(bandName) {
@@ -1552,6 +1595,7 @@ async function fetchDynamicOrigins(genreName) {
 
         if (response.ok) {
             const data = await response.json();
+
             console.log(`WikiData: Orígenes encontrados para ${genreName}:`, data.results.bindings.length);
             return data.results.bindings
                 .map(b => normalizeGenreName(b.originLabel.value))
