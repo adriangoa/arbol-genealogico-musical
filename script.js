@@ -2372,7 +2372,9 @@ window.downloadTreePDF = async () => {
         const margin = 15;
         const lineHeight = 5;
 
-        const title = cleanForPdf(`${t('tree_title')}: ${currentMainGenre}`);
+        // FIX: Usar siempre el título en inglés para el PDF.
+        // La fuente Courier no soporta caracteres japoneses (CJK), por lo que cleanForPdf los elimina.
+        const title = cleanForPdf(`${translations['en']['tree_title']}: ${currentMainGenre}`);
         doc.setTextColor('#000000');
         doc.text(title, margin, y);
         y += 10;
