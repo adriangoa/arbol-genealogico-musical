@@ -779,7 +779,12 @@ async function displayResults(bandName, bandInfo) {
                     <p><strong>${t('type')}</strong> ${bandInfo.type || t('band_type_default')}</p>
                     ${bandInfo.spotifyId
             ? `<iframe style="border-radius:12px; margin-top:15px;" src="https://open.spotify.com/embed/artist/${bandInfo.spotifyId}?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`
-            : (bandInfo.spotifyUrl ? `<a href="${bandInfo.spotifyUrl}" target="_blank" class="spotify-link">${t('search_spotify')}</a>` : '')
+            : (bandInfo.spotifyUrl
+                ? `<div>
+                     <a href="spotify:search:${encodeURIComponent(bandInfo.name)}" class="spotify-link">${t('search_spotify')} (App)</a>
+                     <a href="${bandInfo.spotifyUrl}" target="_blank" style="font-size: 0.85em; display: block; text-align: center; margin-top: 8px; color: #00f3ff; text-decoration: none; opacity: 0.8; transition: opacity 0.2s;">🌐 Abrir en Web</a>
+                   </div>`
+                : '')
         }
                 </div>
             </div>
