@@ -793,6 +793,7 @@ async function getTopGenreFromLastFM(artistName) {
             const ignoreList = [
                 'seen live', 'under 2000 listeners', 'female vocalists', 'male vocalists',
                 'american', 'british', 'canadian', 'german', 'french', 'australian', 'swedish',
+                'mexico', 'mexican', 'latin', 'spanish', 'italian', 'japanese', 'brazilian', 'argentinian', 'colombian',
                 '80s', '90s', '00s', '70s', '60s', 'all', 'favorite', 'favourite', 'favorites',
                 'singer-songwriter', 'solo', 'band', 'group', 'rock', 'metal' // Preferimos subgéneros específicos si existen
             ];
