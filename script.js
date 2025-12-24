@@ -53,6 +53,12 @@ const translations = {
         search_this_band: "Search this band",
         deep_search_title: "Search for origins on the web",
         bio_modal_title: "Click to see biography and listen",
+        download_pdf: "📄 Download PDF",
+        generating_pdf: "⏳ Generating PDF...",
+        pdf_saved: "✅ PDF saved successfully.",
+        pdf_error: "❌ Error generating PDF.",
+        no_tree_data: "⚠️ No tree data to download.",
+        open_on_web: "🌐 Open on Web",
     },
     es: {
         app_title: "🎵 SonicRoots: Genealogía Musical",
@@ -93,6 +99,12 @@ const translations = {
         search_this_band: "Buscar esta banda",
         deep_search_title: "Buscar orígenes en la web",
         bio_modal_title: "Click para ver biografía y escuchar",
+        download_pdf: "📄 Descargar PDF",
+        generating_pdf: "⏳ Generando PDF...",
+        pdf_saved: "✅ PDF guardado correctamente.",
+        pdf_error: "❌ Error al generar el PDF.",
+        no_tree_data: "⚠️ No hay datos del árbol para descargar.",
+        open_on_web: "🌐 Abrir en Web",
     },
     fr: {
         app_title: "🎵 SonicRoots: Généalogie Musicale",
@@ -133,6 +145,12 @@ const translations = {
         search_this_band: "Rechercher ce groupe",
         deep_search_title: "Rechercher des origines sur le web",
         bio_modal_title: "Cliquez pour voir la biographie et écouter",
+        download_pdf: "📄 Télécharger PDF",
+        generating_pdf: "⏳ Génération du PDF...",
+        pdf_saved: "✅ PDF enregistré avec succès.",
+        pdf_error: "❌ Erreur lors de la génération du PDF.",
+        no_tree_data: "⚠️ Aucune donnée d'arbre à télécharger.",
+        open_on_web: "🌐 Ouvrir sur le Web",
     },
     de: {
         app_title: "🎵 SonicRoots: Musikalische Genealogie",
@@ -173,6 +191,12 @@ const translations = {
         search_this_band: "Diese Band suchen",
         deep_search_title: "Im Web nach Ursprüngen suchen",
         bio_modal_title: "Klicken für Biografie und Hörprobe",
+        download_pdf: "📄 PDF herunterladen",
+        generating_pdf: "⏳ PDF wird erstellt...",
+        pdf_saved: "✅ PDF erfolgreich gespeichert.",
+        pdf_error: "❌ Fehler beim Erstellen des PDF.",
+        no_tree_data: "⚠️ Keine Baumdaten zum Herunterladen.",
+        open_on_web: "🌐 Im Web öffnen",
     },
     it: {
         app_title: "🎵 SonicRoots: Genealogia Musicale",
@@ -213,6 +237,12 @@ const translations = {
         search_this_band: "Cerca questa band",
         deep_search_title: "Cerca origini sul web",
         bio_modal_title: "Clicca per vedere biografia e ascoltare",
+        download_pdf: "📄 Scarica PDF",
+        generating_pdf: "⏳ Generazione PDF...",
+        pdf_saved: "✅ PDF salvato con successo.",
+        pdf_error: "❌ Errore durante la generazione del PDF.",
+        no_tree_data: "⚠️ Nessun dato dell'albero da scaricare.",
+        open_on_web: "🌐 Apri sul Web",
     },
     pt: {
         app_title: "🎵 SonicRoots: Genealogia Musical",
@@ -253,6 +283,12 @@ const translations = {
         search_this_band: "Buscar esta banda",
         deep_search_title: "Buscar origens na web",
         bio_modal_title: "Clique para ver biografia e ouvir",
+        download_pdf: "📄 Baixar PDF",
+        generating_pdf: "⏳ Gerando PDF...",
+        pdf_saved: "✅ PDF salvo com sucesso.",
+        pdf_error: "❌ Erro ao gerar PDF.",
+        no_tree_data: "⚠️ Sem dados da árvore para baixar.",
+        open_on_web: "🌐 Abrir na Web",
     },
     ja: {
         app_title: "🎵 SonicRoots: 音楽の系譜",
@@ -293,6 +329,12 @@ const translations = {
         search_this_band: "このバンドを検索",
         deep_search_title: "ウェブで起源を検索",
         bio_modal_title: "クリックして伝記と試聴を見る",
+        download_pdf: "📄 PDFをダウンロード",
+        generating_pdf: "⏳ PDFを作成中...",
+        pdf_saved: "✅ PDFを保存しました。",
+        pdf_error: "❌ PDFの作成中にエラーが発生しました。",
+        no_tree_data: "⚠️ ダウンロードするツリーデータがありません。",
+        open_on_web: "🌐 ウェブで開く",
     }
 };
 
@@ -574,14 +616,20 @@ async function getGenreInfo(genreName) {
                 }
 
                 // Procesar descripción de Last.fm
-                let description = data.tag.wiki?.summary;
+                let description = data.tag.wiki?.content || data.tag.wiki?.summary;
                 if (description) {
                     // Limpiar enlace "Read more on Last.fm"
                     description = description.replace(/\s*<a href="[^"]*last\.fm[^"]*"[^>]*>.*?<\/a>\s*/i, '');
+                    // Limpiar texto legal de Creative Commons
+                    description = description.replace(/User-contributed text is available under the Creative Commons By-SA License; additional terms may apply\.?/i, '');
+                    // Limpiar corchetes de citas (ej. [1], [cita requerida])
+                    description = description.replace(/\s*\[.*?\]/g, '');
                     // Quitar etiquetas HTML
                     description = description.replace(/<[^>]+>/g, '');
                     // Decodificar entidades básicas
                     description = description.replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+                    // Corregir puntos dobles accidentales (.. -> .) preservando puntos suspensivos (...)
+                    description = description.replace(/([^.]|^)\.\.(?![.])/g, '$1.');
                     description = description.trim();
                 }
 
@@ -745,6 +793,7 @@ async function getTopGenreFromLastFM(artistName) {
             const ignoreList = [
                 'seen live', 'under 2000 listeners', 'female vocalists', 'male vocalists',
                 'american', 'british', 'canadian', 'german', 'french', 'australian', 'swedish',
+                'mexico', 'mexican', 'latin', 'spanish', 'italian', 'japanese', 'brazilian', 'argentinian', 'colombian',
                 '80s', '90s', '00s', '70s', '60s', 'all', 'favorite', 'favourite', 'favorites',
                 'singer-songwriter', 'solo', 'band', 'group', 'rock', 'metal' // Preferimos subgéneros específicos si existen
             ];
@@ -1021,7 +1070,7 @@ async function displayResults(bandName, bandInfo) {
             : (bandInfo.spotifyUrl
                 ? `<div style="display: flex; flex-direction: column; align-items: center;">
                      <a href="spotify:search:${encodeURIComponent(bandInfo.name)}" class="spotify-link">${t('search_spotify')} (App)</a>
-                     <a href="${bandInfo.spotifyUrl}" target="_blank" style="font-size: 0.85em; margin-top: 8px; color: #00f3ff; text-decoration: none; opacity: 0.8; transition: opacity 0.2s;">🌐 Abrir en Web</a>
+                     <a href="${bandInfo.spotifyUrl}" target="_blank" style="font-size: 0.85em; margin-top: 8px; color: #00f3ff; text-decoration: none; opacity: 0.8; transition: opacity 0.2s;">${t('open_on_web')}</a>
                    </div>`
                 : '')
         }
@@ -1039,6 +1088,7 @@ async function displayResults(bandName, bandInfo) {
                 <button class="zoom-btn" onclick="zoomTree(0.2)">${t('zoom_in')}</button>
                 <button class="zoom-btn" onclick="resetTreeZoom()">${t('zoom_reset')}</button>
                 <button class="zoom-btn" onclick="zoomTree(-0.2)">${t('zoom_out')}</button>
+                <button class="zoom-btn" onclick="downloadTreePDF()" style="margin-left: 10px; border-color: #ff0055; color: #ff0055;">${t('download_pdf')}</button>
             </div>
 
             <div class="tree-container">
@@ -1131,6 +1181,57 @@ async function displayResults(bandName, bandInfo) {
             treeContainer.scrollLeft = scrollLeft - walkX;
             treeContainer.scrollTop = scrollTop - walkY;
         });
+
+        // Soporte para Pinch Zoom (Móvil)
+        let initialPinchDistance = null;
+        let startPinchZoomLevel = 1;
+
+        treeContainer.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 2) {
+                e.preventDefault(); // Prevenir zoom nativo del navegador
+                const dx = e.touches[0].clientX - e.touches[1].clientX;
+                const dy = e.touches[0].clientY - e.touches[1].clientY;
+                initialPinchDistance = Math.hypot(dx, dy);
+                startPinchZoomLevel = treeZoomLevel;
+            }
+        }, { passive: false });
+
+        treeContainer.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2 && initialPinchDistance) {
+                e.preventDefault();
+                const dx = e.touches[0].clientX - e.touches[1].clientX;
+                const dy = e.touches[0].clientY - e.touches[1].clientY;
+                const currentDistance = Math.hypot(dx, dy);
+
+                if (currentDistance > 0) {
+                    const oldZoom = treeZoomLevel;
+                    const scale = currentDistance / initialPinchDistance;
+                    const newZoom = Math.max(0.2, Math.min(5, startPinchZoomLevel * scale));
+
+                    if (newZoom !== oldZoom) {
+                        treeZoomLevel = newZoom;
+                        applyTreeZoom();
+
+                        // Ajustar scroll hacia el centro del pinch
+                        const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+                        const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+                        const rect = treeContainer.getBoundingClientRect();
+                        const offsetX = centerX - rect.left;
+                        const offsetY = centerY - rect.top;
+
+                        const scaleRatio = newZoom / oldZoom;
+                        treeContainer.scrollLeft = (treeContainer.scrollLeft + offsetX) * scaleRatio - offsetX;
+                        treeContainer.scrollTop = (treeContainer.scrollTop + offsetY) * scaleRatio - offsetY;
+                    }
+                }
+            }
+        }, { passive: false });
+
+        treeContainer.addEventListener('touchend', (e) => {
+            if (e.touches.length < 2) {
+                initialPinchDistance = null;
+            }
+        });
     }
 
     await buildVisualTree(genre);
@@ -1144,6 +1245,7 @@ let currentGraphNodes = new Set();
 let currentGraphEdges = new Set();
 let currentMainGenre = null;
 let treeZoomLevel = 1;
+let lastInteractedGenre = null;
 
 // Cargar Mermaid.js dinámicamente
 async function loadMermaid() {
@@ -1229,6 +1331,7 @@ async function renderMermaidGraph() {
     // Estilos personalizados
     graphDefinition += 'classDef default fill:#090910,stroke:#00f3ff,stroke-width:2px,rx:5,ry:5,color:#fff,font-family:Arial;\n';
     graphDefinition += 'classDef main fill:#ff0055,stroke:#fff,stroke-width:3px,color:#fff,font-weight:bold;\n';
+    graphDefinition += 'classDef selected fill:#090910,stroke:#ffff00,stroke-width:4px,color:#fff,font-weight:bold;\n';
 
     // Identificar nodos que ya se han expandido (son origen de una flecha hacia abajo)
     const expandedNodes = new Set();
@@ -1250,7 +1353,7 @@ async function renderMermaidGraph() {
         const isLeaf = !expandedNodes.has(genre);
         const searchIcon = isLeaf ? ` <span class='node-search' title='${t('deep_search_title')}'>🔍</span>` : "";
 
-        const nodeClass = genre === currentMainGenre ? 'main' : 'default';
+        const nodeClass = genre === lastInteractedGenre ? 'selected' : (genre === currentMainGenre ? 'main' : 'default');
         graphDefinition += `${genreId}["${genre}${searchIcon}"]:::${nodeClass}\n`;
     });
 
@@ -1398,6 +1501,7 @@ function setupMermaidListeners(container) {
             const foundId = Object.keys(window.mermaidIdMap).find(key => nodeElement.id.includes(key));
             if (foundId) {
                 const genreName = window.mermaidIdMap[foundId];
+                lastInteractedGenre = genreName;
                 console.log('🖱️ Click:', genreName);
 
                 // 1. Mostrar Modal
@@ -1428,6 +1532,66 @@ function highlightEdges(indices, enable) {
     });
 }
 
+// --- Sistema de Notificaciones (Toast) ---
+function showToast(message, type = 'info') {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        `;
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.textContent = message;
+
+    // Colores basados en el tema de la app
+    const borderColor = type === 'error' ? '#ff0055' : (type === 'success' ? '#00ff99' : '#00f3ff');
+
+    toast.style.cssText = `
+        background: rgba(16, 16, 24, 0.95);
+        color: #fff;
+        padding: 12px 24px;
+        border-radius: 4px;
+        border-left: 4px solid ${borderColor};
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        font-family: 'Arial', sans-serif;
+        font-size: 14px;
+        opacity: 0;
+        transform: translateX(50px);
+        transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        min-width: 250px;
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-left-width: 4px;
+        pointer-events: auto;
+    `;
+
+    container.appendChild(toast);
+
+    // Trigger reflow y animar entrada
+    requestAnimationFrame(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(0)';
+    });
+
+    // Remover automáticamente después de 4 segundos
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(50px)';
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
+}
+
 // Función para realizar una búsqueda profunda (Wikidata + Wikipedia)
 async function performDeepAncestorSearch(genreName) {
     console.log(t('deep_search_start', { genreName: genreName }));
@@ -1436,37 +1600,42 @@ async function performDeepAncestorSearch(genreName) {
     const originalCursor = document.body.style.cursor;
     document.body.style.cursor = 'wait';
 
-    // Generar variantes de búsqueda (Original, Sin guiones, Todo junto)
-    const searchVariants = [genreName];
-    if (genreName.includes('-')) {
-        searchVariants.push(genreName.replace(/-/g, ' ')); // "Lo-fi" -> "Lo fi"
-        searchVariants.push(genreName.replace(/-/g, ''));  // "Lo-fi" -> "Lofi"
-    }
+    // FIX: Verificar primero la base de datos local para mantener consistencia con el click del nodo
+    let origins = genreDB.get(genreName);
 
-    let origins = [];
-
-    // Iterar sobre variantes hasta encontrar resultados
-    for (const variant of searchVariants) {
-        console.log(`🔍 Probando variante: "${variant}"`);
-
-        // 1. Intentar Wikidata
-        origins = await fetchDynamicOrigins(variant);
-        if (origins && origins.length > 0) break;
-
-        // 2. Intentar Wikipedia
-        console.log(t('wiki_infobox_search'));
-        origins = await fetchWikipediaOrigins(variant);
-        if (origins && origins.length > 0) break;
-    }
-
-    // 3. Si todo falla, intentar con tags similares de Last.fm (usando el nombre original)
     if (!origins || origins.length === 0) {
-        // Intentar Last.fm con todas las variantes también
+        // Generar variantes de búsqueda (Original, Sin guiones, Todo junto)
+        const searchVariants = [genreName];
+        if (genreName.includes('-')) {
+            searchVariants.push(genreName.replace(/-/g, ' ')); // "Lo-fi" -> "Lo fi"
+            searchVariants.push(genreName.replace(/-/g, ''));  // "Lo-fi" -> "Lofi"
+        }
+
+        // Iterar sobre variantes hasta encontrar resultados
         for (const variant of searchVariants) {
-            console.log(t('lastfm_similar_search') + ` (${variant})`);
-            origins = await fetchLastFmSimilar(variant);
+            console.log(`🔍 Probando variante: "${variant}"`);
+
+            // 1. Intentar Wikidata
+            origins = await fetchDynamicOrigins(variant);
+            if (origins && origins.length > 0) break;
+
+            // 2. Intentar Wikipedia
+            console.log(t('wiki_infobox_search'));
+            origins = await fetchWikipediaOrigins(variant);
             if (origins && origins.length > 0) break;
         }
+
+        // 3. Si todo falla, intentar con tags similares de Last.fm (usando el nombre original)
+        if (!origins || origins.length === 0) {
+            // Intentar Last.fm con todas las variantes también
+            for (const variant of searchVariants) {
+                console.log(t('lastfm_similar_search') + ` (${variant})`);
+                origins = await fetchLastFmSimilar(variant);
+                if (origins && origins.length > 0) break;
+            }
+        }
+    } else {
+        console.log(`✅ Orígenes encontrados en DB local para ${genreName}`);
     }
 
     if (origins && origins.length > 0) {
@@ -1482,7 +1651,7 @@ async function performDeepAncestorSearch(genreName) {
         await expandGenreNode(genreName);
     } else {
         console.log(t('origins_not_found'));
-        alert(t('search_origins_failed', { genreName: genreName }));
+        showToast(t('search_origins_failed', { genreName: genreName }), 'error');
     }
 
     document.body.style.cursor = originalCursor;
@@ -1493,10 +1662,9 @@ async function expandGenreNode(genreName) {
     console.log(`🌳 Expandiendo nodo: ${genreName}`);
     const normalizedGenreName = normalizeGenreName(genreName);
     const genreInfo = await getGenreInfo(genreName);
+    let newNodesAdded = false;
 
     if (genreInfo && genreInfo.origins && genreInfo.origins.length > 0) {
-        let newNodesAdded = false;
-
         for (const origin of genreInfo.origins) {
             // Si el origen no está en el gráfico, lo agregamos
             const normalizedOrigin = normalizeGenreName(origin);
@@ -1513,13 +1681,15 @@ async function expandGenreNode(genreName) {
                 }
             }
         }
+    }
 
-        if (newNodesAdded) {
-            console.log(t('tree_updated'));
-            await renderMermaidGraph();
-        } else {
-            console.log(t('node_expanded'));
-        }
+    if (newNodesAdded) {
+        console.log(t('tree_updated'));
+        await renderMermaidGraph();
+    } else {
+        console.log(t('node_expanded'));
+        // Forzar renderizado para actualizar el borde amarillo de selección
+        await renderMermaidGraph();
     }
 }
 
@@ -1588,6 +1758,67 @@ function initModalSystem() {
     window.onclick = (event) => { if (event.target == modal) closeModal(); };
 }
 
+// Función auxiliar para manejar el colapso de texto en modales basado en altura
+function renderModalContentWithCollapse(bodyElement, textContent, audioHtml) {
+    const contentId = `desc-${Date.now()}`;
+    const btnId = `btn-${Date.now()}`;
+
+    // Renderizar contenido completo inicialmente
+    bodyElement.innerHTML = `
+        <div id="${contentId}" style="transition: max-height 0.5s ease; position: relative;">
+            <p>${textContent}</p>
+        </div>
+        <div id="${btnId}-container" style="display:none; text-align:center; margin-top:10px; padding-bottom: 5px;">
+            <span id="${btnId}" style="color:#00f3ff; cursor:pointer; font-weight:bold; border-bottom: 1px dotted #00f3ff; font-size: 0.9em;">${t('read_more')}</span>
+        </div>
+    `;
+
+    const audioContainer = document.getElementById('modal-audio');
+    audioContainer.innerHTML = audioHtml;
+
+    // Verificar dimensiones una vez renderizado
+    requestAnimationFrame(() => {
+        const modalContent = document.querySelector('#genre-modal .modal-content');
+        const descDiv = document.getElementById(contentId);
+        const btnContainer = document.getElementById(`${btnId}-container`);
+        const btn = document.getElementById(btnId);
+
+        if (!modalContent || !descDiv) return;
+
+        const viewportHeight = window.innerHeight;
+        const contentHeight = modalContent.scrollHeight;
+
+        // Si el contenido total excede el 80% de la altura de la pantalla, colapsar el texto
+        if (contentHeight > viewportHeight * 0.8) {
+            const collapse = () => {
+                descDiv.style.maxHeight = '40vh'; // Limitar texto al 40% de la pantalla para dejar espacio al player
+                descDiv.style.overflow = 'hidden';
+                // Efecto de desvanecimiento al final
+                descDiv.style.maskImage = 'linear-gradient(to bottom, black 60%, transparent 100%)';
+                descDiv.style.webkitMaskImage = 'linear-gradient(to bottom, black 60%, transparent 100%)';
+                btnContainer.style.display = 'block';
+                btn.textContent = t('read_more');
+            };
+
+            const expand = () => {
+                descDiv.style.maxHeight = null;
+                descDiv.style.overflow = 'visible';
+                descDiv.style.maskImage = 'none';
+                descDiv.style.webkitMaskImage = 'none';
+                btn.textContent = t('read_less');
+            };
+
+            btn.onclick = () => {
+                if (descDiv.style.maxHeight) expand();
+                else collapse();
+            };
+
+            // Iniciar colapsado
+            collapse();
+        }
+    });
+}
+
 async function showGenreModal(genreName) {
     console.log('📺 Abriendo modal para:', genreName);
 
@@ -1602,47 +1833,15 @@ async function showGenreModal(genreName) {
     audioContainer.innerHTML = `<p>${t('modal_loading_audio')}</p>`;
 
     try {
-        // 1. Obtener Info del Género
-        const genreInfo = await getGenreInfo(genreName);
+        // Carga paralela para optimizar y calcular layout real
+        const [genreInfo, trackInfo] = await Promise.all([
+            getGenreInfo(genreName),
+            getGenreTrackPreview(genreName)
+        ]);
 
-        const maxLength = 350;
-        if (genreInfo.description && genreInfo.description.length > maxLength) {
-            const shortText = genreInfo.description.substring(0, maxLength);
-            const longText = genreInfo.description.substring(maxLength);
-
-            body.innerHTML = `
-                <p>
-                    ${shortText}<span id="desc-dots">...</span><span id="desc-more" style="display:none">${longText}</span>
-                    <span id="read-more-btn" style="color:#00f3ff; cursor:pointer; font-weight:bold; margin-left:5px;">${t('read_more')}</span>
-                </p>
-            `;
-
-            document.getElementById('read-more-btn').onclick = function () {
-                const dots = document.getElementById('desc-dots');
-                const more = document.getElementById('desc-more');
-                const btn = document.getElementById('read-more-btn');
-
-                if (dots.style.display === 'none') {
-                    dots.style.display = 'inline';
-                    more.style.display = 'none';
-                    btn.textContent = t('read_more');
-                } else {
-                    dots.style.display = 'none';
-                    more.style.display = 'inline';
-                    btn.textContent = t('read_less');
-                }
-            };
-        } else {
-            body.innerHTML = `
-                <p>${genreInfo.description}</p>
-            `;
-        }
-
-        // 2. Obtener Preview de Audio
-        const trackInfo = await getGenreTrackPreview(genreName);
-
+        let audioHtml = '';
         if (trackInfo && trackInfo.previewUrl) {
-            audioContainer.innerHTML = `
+            audioHtml = `
                 <div class="track-preview">
                     <img src="${trackInfo.image || 'https://via.placeholder.com/60'}" width="60" height="60" style="border-radius:4px;">
                     <div class="track-info">
@@ -1672,16 +1871,22 @@ async function showGenreModal(genreName) {
                 displayHtml = `<span class="track-name" style="margin-bottom:10px;">${t('watch_related_on_youtube')} ${genreName}</span>`;
             }
 
-            audioContainer.innerHTML = `
+            audioHtml = `
                 <div class="track-preview" style="display:block; text-align:center;">
                     ${displayHtml}
                     <a href="${ytUrl}" target="_blank" style="background:#ff0000; color:white; text-decoration:none; padding:10px 20px; border-radius:5px; font-weight:bold; display:inline-block; margin-top:10px; transition: transform 0.2s;">${t('open_on_youtube')}</a>
                 </div>
             `;
         }
+
+        // Renderizar con lógica de colapso inteligente
+        const description = genreInfo.description || t('description_unavailable', { genre: genreName });
+        renderModalContentWithCollapse(body, description, audioHtml);
+
     } catch (error) {
         console.error(error);
         body.innerHTML = '<p>Error cargando detalles.</p>';
+        audioContainer.innerHTML = '';
     }
 }
 
@@ -1700,15 +1905,15 @@ async function showBandModal(bandName) {
     audioContainer.innerHTML = `<p>${t('modal_loading_track')}</p>`;
 
     try {
-        // 1. Obtener Biografía (Last.fm)
-        const bio = await getBandBio(bandName);
-        body.innerHTML = `<p>${bio}</p>`;
+        // Carga paralela
+        const [bio, trackInfo] = await Promise.all([
+            getBandBio(bandName),
+            getBandTrackPreview(bandName)
+        ]);
 
-        // 2. Obtener Preview de Audio
-        const trackInfo = await getBandTrackPreview(bandName);
-
+        let audioHtml = '';
         if (trackInfo && trackInfo.previewUrl) {
-            audioContainer.innerHTML = `
+            audioHtml = `
                 <div class="track-preview">
                     <img src="${trackInfo.image || 'https://via.placeholder.com/60'}" width="60" height="60" style="border-radius:4px;">
                     <div class="track-info">
@@ -1726,16 +1931,20 @@ async function showBandModal(bandName) {
             const searchQuery = `${bandName} music`;
             const ytUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(searchQuery)}`;
 
-            audioContainer.innerHTML = `
+            audioHtml = `
                 <div class="track-preview" style="display:block; text-align:center;">
                     <span class="track-name" style="margin-bottom:10px;">${t('watch_on_youtube')} ${bandName}</span>
                     <a href="${ytUrl}" target="_blank" style="background:#ff0000; color:white; text-decoration:none; padding:10px 20px; border-radius:5px; font-weight:bold; display:inline-block; margin-top:10px; transition: transform 0.2s;">${t('open_on_youtube')}</a>
                 </div>
             `;
         }
+
+        renderModalContentWithCollapse(body, bio, audioHtml);
+
     } catch (error) {
         console.error(error);
         body.innerHTML = '<p>Error cargando detalles de la banda.</p>';
+        audioContainer.innerHTML = '';
     }
 }
 
@@ -1752,9 +1961,12 @@ async function getBandBio(bandName) {
                 if (bio) {
                     // Limpiar enlaces y HTML básico
                     bio = bio.replace(/\s*<a href="[^"]*last\.fm[^"]*"[^>]*>.*?<\/a>\s*/i, '');
+                    bio = bio.replace(/\s*\[.*?\]/g, '');
                     bio = bio.replace(/<[^>]+>/g, '');
                     // Decodificar entidades básicas
                     bio = bio.replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+                    // Corregir puntos dobles accidentales (.. -> .) preservando puntos suspensivos (...)
+                    bio = bio.replace(/([^.]|^)\.\.(?![.])/g, '$1.');
                     bio = bio.trim();
                     // Retornar solo si hay texto real y sustancial
                     if (bio && bio.length > 20 && bio !== '.') {
@@ -2107,6 +2319,143 @@ window.zoomTree = (delta) => {
 window.resetTreeZoom = () => {
     treeZoomLevel = 1;
     applyTreeZoom();
+};
+
+// --- Generación de PDF y Árbol de Texto ---
+
+async function loadJsPDF() {
+    if (window.jspdf) return;
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
+function generateColoredTreeData(root, edgesSet) {
+    // Construir lista de adyacencia (Hijo -> [Padres])
+    const adj = {};
+    edgesSet.forEach(edge => {
+        const [child, parent] = edge.split('|');
+        if (!adj[child]) adj[child] = [];
+        adj[child].push(parent);
+    });
+
+    // Paleta de colores ajustada para legibilidad en PDF (fondo blanco)
+    const palette = ['#d60047', '#0099cc', '#8a00e6', '#d4d400', '#00cc7a', '#d60047', '#cc0088', '#0077cc'];
+    let colorIndex = 0;
+    const getNextColor = () => palette[(colorIndex++) % palette.length];
+
+    const lines = [];
+
+    function traverse(node, prefixSegments, isTail, isRoot, nodeColor) {
+        // Conector para el nodo actual
+        const connector = isRoot ? '' : (isTail ? '\\-- ' : '+-- ');
+
+        const line = [];
+        // Agregar segmentos de prefijo (las líneas verticales de niveles superiores)
+        prefixSegments.forEach(seg => line.push(seg));
+
+        // Agregar conector actual con su color
+        if (connector) {
+            line.push({ text: connector, color: nodeColor });
+        }
+
+        // Agregar nombre del nodo (Negro para máxima legibilidad)
+        line.push({ text: node, color: '#000000' });
+
+        lines.push(line);
+
+        const parents = adj[node] || [];
+        parents.forEach((parent, i) => {
+            const isLastChild = i === parents.length - 1;
+
+            // Lógica de colores: Si hay ramificación, asignar nuevo color. Si no, heredar.
+            let childColor = nodeColor;
+            if (parents.length > 1) {
+                childColor = getNextColor();
+            }
+
+            // Calcular prefijo para los hijos (la línea vertical que baja)
+            const extensionStr = isRoot ? '' : (isTail ? '    ' : '|   ');
+
+            // El segmento de extensión hereda el color del nodo actual
+            const newPrefix = [...prefixSegments];
+            if (!isRoot) {
+                newPrefix.push({ text: extensionStr, color: nodeColor });
+            }
+
+            traverse(parent, newPrefix, isLastChild, false, childColor);
+        });
+    }
+
+    traverse(root, [], true, true, '#000000');
+    return lines;
+}
+
+window.downloadTreePDF = async () => {
+    if (!currentMainGenre || currentGraphEdges.size === 0) {
+        showToast(t('no_tree_data'), 'error');
+        return;
+    }
+
+    showToast(t('generating_pdf'), 'info');
+
+    // Función para limpiar caracteres no soportados por fuentes estándar de PDF (ASCII puro)
+    const cleanForPdf = (str) => {
+        return str
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Eliminar acentos (Á -> A)
+            .replace(/[^\x20-\x7E\n]/g, ""); // Eliminar emojis y caracteres fuera del rango ASCII
+    };
+
+    try {
+        await loadJsPDF();
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        const treeLines = generateColoredTreeData(currentMainGenre, currentGraphEdges);
+
+        doc.setFont("Courier"); // Fuente monoespaciada esencial para el árbol ASCII
+        doc.setFontSize(10);
+
+        let y = 15;
+        const pageHeight = doc.internal.pageSize.height;
+        const margin = 15;
+        const lineHeight = 5;
+
+        // FIX: Usar siempre el título en inglés para el PDF.
+        // La fuente Courier no soporta caracteres japoneses (CJK), por lo que cleanForPdf los elimina.
+        const title = cleanForPdf(`${translations['en']['tree_title']}: ${currentMainGenre}`);
+        doc.setTextColor('#000000');
+        doc.text(title, margin, y);
+        y += 10;
+
+        treeLines.forEach(lineSegments => {
+            if (y > pageHeight - margin) {
+                doc.addPage();
+                y = margin;
+            }
+
+            let currentX = margin;
+            lineSegments.forEach(segment => {
+                const text = cleanForPdf(segment.text);
+                doc.setTextColor(segment.color); // Aplicar color del segmento
+                doc.text(text, currentX, y);
+                currentX += doc.getTextWidth(text); // Mover cursor X para el siguiente segmento
+            });
+
+            y += lineHeight;
+        });
+
+        doc.save(`${currentMainGenre}_Genealogy.pdf`);
+        showToast(t('pdf_saved'), 'success');
+
+    } catch (e) {
+        console.error(e);
+        showToast(t('pdf_error'), 'error');
+    }
 };
 
 function applyTreeZoom() {
