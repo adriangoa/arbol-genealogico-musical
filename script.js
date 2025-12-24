@@ -1751,6 +1751,67 @@ function initModalSystem() {
     window.onclick = (event) => { if (event.target == modal) closeModal(); };
 }
 
+// Función auxiliar para manejar el colapso de texto en modales basado en altura
+function renderModalContentWithCollapse(bodyElement, textContent, audioHtml) {
+    const contentId = `desc-${Date.now()}`;
+    const btnId = `btn-${Date.now()}`;
+
+    // Renderizar contenido completo inicialmente
+    bodyElement.innerHTML = `
+        <div id="${contentId}" style="transition: max-height 0.5s ease; position: relative;">
+            <p>${textContent}</p>
+        </div>
+        <div id="${btnId}-container" style="display:none; text-align:center; margin-top:10px; padding-bottom: 5px;">
+            <span id="${btnId}" style="color:#00f3ff; cursor:pointer; font-weight:bold; border-bottom: 1px dotted #00f3ff; font-size: 0.9em;">${t('read_more')}</span>
+        </div>
+    `;
+
+    const audioContainer = document.getElementById('modal-audio');
+    audioContainer.innerHTML = audioHtml;
+
+    // Verificar dimensiones una vez renderizado
+    requestAnimationFrame(() => {
+        const modalContent = document.querySelector('#genre-modal .modal-content');
+        const descDiv = document.getElementById(contentId);
+        const btnContainer = document.getElementById(`${btnId}-container`);
+        const btn = document.getElementById(btnId);
+
+        if (!modalContent || !descDiv) return;
+
+        const viewportHeight = window.innerHeight;
+        const contentHeight = modalContent.scrollHeight;
+
+        // Si el contenido total excede el 80% de la altura de la pantalla, colapsar el texto
+        if (contentHeight > viewportHeight * 0.8) {
+            const collapse = () => {
+                descDiv.style.maxHeight = '40vh'; // Limitar texto al 40% de la pantalla para dejar espacio al player
+                descDiv.style.overflow = 'hidden';
+                // Efecto de desvanecimiento al final
+                descDiv.style.maskImage = 'linear-gradient(to bottom, black 60%, transparent 100%)';
+                descDiv.style.webkitMaskImage = 'linear-gradient(to bottom, black 60%, transparent 100%)';
+                btnContainer.style.display = 'block';
+                btn.textContent = t('read_more');
+            };
+
+            const expand = () => {
+                descDiv.style.maxHeight = null;
+                descDiv.style.overflow = 'visible';
+                descDiv.style.maskImage = 'none';
+                descDiv.style.webkitMaskImage = 'none';
+                btn.textContent = t('read_less');
+            };
+
+            btn.onclick = () => {
+                if (descDiv.style.maxHeight) expand();
+                else collapse();
+            };
+
+            // Iniciar colapsado
+            collapse();
+        }
+    });
+}
+
 async function showGenreModal(genreName) {
     console.log('📺 Abriendo modal para:', genreName);
 
@@ -1765,47 +1826,15 @@ async function showGenreModal(genreName) {
     audioContainer.innerHTML = `<p>${t('modal_loading_audio')}</p>`;
 
     try {
-        // 1. Obtener Info del Género
-        const genreInfo = await getGenreInfo(genreName);
+        // Carga paralela para optimizar y calcular layout real
+        const [genreInfo, trackInfo] = await Promise.all([
+            getGenreInfo(genreName),
+            getGenreTrackPreview(genreName)
+        ]);
 
-        const maxLength = 350;
-        if (genreInfo.description && genreInfo.description.length > maxLength) {
-            const shortText = genreInfo.description.substring(0, maxLength);
-            const longText = genreInfo.description.substring(maxLength);
-
-            body.innerHTML = `
-                <p>
-                    ${shortText}<span id="desc-dots">...</span><span id="desc-more" style="display:none">${longText}</span>
-                    <span id="read-more-btn" style="color:#00f3ff; cursor:pointer; font-weight:bold; margin-left:5px;">${t('read_more')}</span>
-                </p>
-            `;
-
-            document.getElementById('read-more-btn').onclick = function () {
-                const dots = document.getElementById('desc-dots');
-                const more = document.getElementById('desc-more');
-                const btn = document.getElementById('read-more-btn');
-
-                if (dots.style.display === 'none') {
-                    dots.style.display = 'inline';
-                    more.style.display = 'none';
-                    btn.textContent = t('read_more');
-                } else {
-                    dots.style.display = 'none';
-                    more.style.display = 'inline';
-                    btn.textContent = t('read_less');
-                }
-            };
-        } else {
-            body.innerHTML = `
-                <p>${genreInfo.description}</p>
-            `;
-        }
-
-        // 2. Obtener Preview de Audio
-        const trackInfo = await getGenreTrackPreview(genreName);
-
+        let audioHtml = '';
         if (trackInfo && trackInfo.previewUrl) {
-            audioContainer.innerHTML = `
+            audioHtml = `
                 <div class="track-preview">
                     <img src="${trackInfo.image || 'https://via.placeholder.com/60'}" width="60" height="60" style="border-radius:4px;">
                     <div class="track-info">
@@ -1835,16 +1864,22 @@ async function showGenreModal(genreName) {
                 displayHtml = `<span class="track-name" style="margin-bottom:10px;">${t('watch_related_on_youtube')} ${genreName}</span>`;
             }
 
-            audioContainer.innerHTML = `
+            audioHtml = `
                 <div class="track-preview" style="display:block; text-align:center;">
                     ${displayHtml}
                     <a href="${ytUrl}" target="_blank" style="background:#ff0000; color:white; text-decoration:none; padding:10px 20px; border-radius:5px; font-weight:bold; display:inline-block; margin-top:10px; transition: transform 0.2s;">${t('open_on_youtube')}</a>
                 </div>
             `;
         }
+
+        // Renderizar con lógica de colapso inteligente
+        const description = genreInfo.description || t('description_unavailable', { genre: genreName });
+        renderModalContentWithCollapse(body, description, audioHtml);
+
     } catch (error) {
         console.error(error);
         body.innerHTML = '<p>Error cargando detalles.</p>';
+        audioContainer.innerHTML = '';
     }
 }
 
@@ -1863,15 +1898,15 @@ async function showBandModal(bandName) {
     audioContainer.innerHTML = `<p>${t('modal_loading_track')}</p>`;
 
     try {
-        // 1. Obtener Biografía (Last.fm)
-        const bio = await getBandBio(bandName);
-        body.innerHTML = `<p>${bio}</p>`;
+        // Carga paralela
+        const [bio, trackInfo] = await Promise.all([
+            getBandBio(bandName),
+            getBandTrackPreview(bandName)
+        ]);
 
-        // 2. Obtener Preview de Audio
-        const trackInfo = await getBandTrackPreview(bandName);
-
+        let audioHtml = '';
         if (trackInfo && trackInfo.previewUrl) {
-            audioContainer.innerHTML = `
+            audioHtml = `
                 <div class="track-preview">
                     <img src="${trackInfo.image || 'https://via.placeholder.com/60'}" width="60" height="60" style="border-radius:4px;">
                     <div class="track-info">
@@ -1889,16 +1924,20 @@ async function showBandModal(bandName) {
             const searchQuery = `${bandName} music`;
             const ytUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(searchQuery)}`;
 
-            audioContainer.innerHTML = `
+            audioHtml = `
                 <div class="track-preview" style="display:block; text-align:center;">
                     <span class="track-name" style="margin-bottom:10px;">${t('watch_on_youtube')} ${bandName}</span>
                     <a href="${ytUrl}" target="_blank" style="background:#ff0000; color:white; text-decoration:none; padding:10px 20px; border-radius:5px; font-weight:bold; display:inline-block; margin-top:10px; transition: transform 0.2s;">${t('open_on_youtube')}</a>
                 </div>
             `;
         }
+
+        renderModalContentWithCollapse(body, bio, audioHtml);
+
     } catch (error) {
         console.error(error);
         body.innerHTML = '<p>Error cargando detalles de la banda.</p>';
+        audioContainer.innerHTML = '';
     }
 }
 
