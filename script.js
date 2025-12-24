@@ -58,6 +58,7 @@ const translations = {
         pdf_saved: "✅ PDF saved successfully.",
         pdf_error: "❌ Error generating PDF.",
         no_tree_data: "⚠️ No tree data to download.",
+        open_on_web: "🌐 Open on Web",
     },
     es: {
         app_title: "🎵 SonicRoots: Genealogía Musical",
@@ -103,6 +104,7 @@ const translations = {
         pdf_saved: "✅ PDF guardado correctamente.",
         pdf_error: "❌ Error al generar el PDF.",
         no_tree_data: "⚠️ No hay datos del árbol para descargar.",
+        open_on_web: "🌐 Abrir en Web",
     },
     fr: {
         app_title: "🎵 SonicRoots: Généalogie Musicale",
@@ -148,6 +150,7 @@ const translations = {
         pdf_saved: "✅ PDF enregistré avec succès.",
         pdf_error: "❌ Erreur lors de la génération du PDF.",
         no_tree_data: "⚠️ Aucune donnée d'arbre à télécharger.",
+        open_on_web: "🌐 Ouvrir sur le Web",
     },
     de: {
         app_title: "🎵 SonicRoots: Musikalische Genealogie",
@@ -193,6 +196,7 @@ const translations = {
         pdf_saved: "✅ PDF erfolgreich gespeichert.",
         pdf_error: "❌ Fehler beim Erstellen des PDF.",
         no_tree_data: "⚠️ Keine Baumdaten zum Herunterladen.",
+        open_on_web: "🌐 Im Web öffnen",
     },
     it: {
         app_title: "🎵 SonicRoots: Genealogia Musicale",
@@ -238,6 +242,7 @@ const translations = {
         pdf_saved: "✅ PDF salvato con successo.",
         pdf_error: "❌ Errore durante la generazione del PDF.",
         no_tree_data: "⚠️ Nessun dato dell'albero da scaricare.",
+        open_on_web: "🌐 Apri sul Web",
     },
     pt: {
         app_title: "🎵 SonicRoots: Genealogia Musical",
@@ -283,6 +288,7 @@ const translations = {
         pdf_saved: "✅ PDF salvo com sucesso.",
         pdf_error: "❌ Erro ao gerar PDF.",
         no_tree_data: "⚠️ Sem dados da árvore para baixar.",
+        open_on_web: "🌐 Abrir na Web",
     },
     ja: {
         app_title: "🎵 SonicRoots: 音楽の系譜",
@@ -328,6 +334,7 @@ const translations = {
         pdf_saved: "✅ PDFを保存しました。",
         pdf_error: "❌ PDFの作成中にエラーが発生しました。",
         no_tree_data: "⚠️ ダウンロードするツリーデータがありません。",
+        open_on_web: "🌐 ウェブで開く",
     }
 };
 
@@ -1056,7 +1063,7 @@ async function displayResults(bandName, bandInfo) {
             : (bandInfo.spotifyUrl
                 ? `<div style="display: flex; flex-direction: column; align-items: center;">
                      <a href="spotify:search:${encodeURIComponent(bandInfo.name)}" class="spotify-link">${t('search_spotify')} (App)</a>
-                     <a href="${bandInfo.spotifyUrl}" target="_blank" style="font-size: 0.85em; margin-top: 8px; color: #00f3ff; text-decoration: none; opacity: 0.8; transition: opacity 0.2s;">🌐 Abrir en Web</a>
+                     <a href="${bandInfo.spotifyUrl}" target="_blank" style="font-size: 0.85em; margin-top: 8px; color: #00f3ff; text-decoration: none; opacity: 0.8; transition: opacity 0.2s;">${t('open_on_web')}</a>
                    </div>`
                 : '')
         }
